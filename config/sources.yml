@@ -1,0 +1,250 @@
+schema_version: 1
+
+# Only authoritative publisher pages and downloads are registered. Historical
+# completion entries remain inactive until their archive-to-reference-year
+# mapping is reviewed; their URLs are deliberately not inferred.
+sources:
+  - &doe_2018_11
+    source_id: doe_s11_2018
+    publisher: Department of Education
+    dataset: Selected Higher Education Statistics
+    section: "11"
+    year: 2018
+    status: active
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2018-section-11-equity-groups
+    download_url: https://www.education.gov.au/download/4653/2018-section-11-equity-groups/18846/document/xls
+    expected_format: xls
+    published_at: "2019-10-28"
+    allowed_hosts: &doe_hosts [www.education.gov.au]
+
+  - <<: *doe_2018_11
+    source_id: doe_s15_2018
+    section: "15"
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2018-section-15-attrition-success-and-retention
+    download_url: https://www.education.gov.au/download/4657/2018-section-15-attrition-success-and-retention/6972/document/xls
+
+  - <<: *doe_2018_11
+    source_id: doe_s16_2018
+    section: "16"
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2018-section-16-equity-performance-data
+    download_url: https://www.education.gov.au/download/4658/2018-section-16-equity-performance-data/6974/document/xls
+
+  - <<: *doe_2018_11
+    source_id: doe_s11_2019
+    year: 2019
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2019-section-11-equity-groups
+    download_url: https://www.education.gov.au/download/5084/2019-section-11-equity-groups/7622/document/xls
+    published_at: "2020-09-08"
+
+  - <<: *doe_2018_11
+    source_id: doe_s15_2019
+    section: "15"
+    year: 2019
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2019-section-15-attrition-success-and-retention
+    download_url: https://www.education.gov.au/download/5088/2019-section-15-attrition-success-and-retention/7626/document/xls
+    published_at: "2020-09-08"
+
+  - <<: *doe_2018_11
+    source_id: doe_s16_2019
+    section: "16"
+    year: 2019
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2019-section-16-equity-performance-data
+    download_url: https://www.education.gov.au/download/5089/2019-section-16-equity-performance-data/7627/document/xls
+    published_at: "2020-09-08"
+
+  - <<: *doe_2018_11
+    source_id: doe_s11_2020
+    year: 2020
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2020-section-11-equity-groups
+    download_url: https://www.education.gov.au/download/13345/2020-section-11-equity-groups/25758/document/xls
+    published_at: "2022-02-14"
+    notes: Disability enrolments were under-reported during the TCSI transition; see publication page.
+
+  - <<: *doe_2018_11
+    source_id: doe_s15_2020
+    section: "15"
+    year: 2020
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2020-section-15-attrition-success-and-retention
+    download_url: https://www.education.gov.au/download/13349/2020-section-15-attrition-success-and-retention/25762/document/xls
+    published_at: "2022-02-14"
+
+  - <<: *doe_2018_11
+    source_id: doe_s16_2020
+    section: "16"
+    year: 2020
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2020-section-16-equity-performance-data
+    download_url: https://www.education.gov.au/download/13350/2020-section-16-equity-performance-data/25763/document/xls
+    published_at: "2022-02-14"
+    notes: Disability indicators were affected by TCSI transition under-reporting.
+
+  - &doe_2021_11
+    <<: *doe_2018_11
+    source_id: doe_s11_2021
+    year: 2021
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2021-section-11-equity-groups
+    download_url: https://www.education.gov.au/download/14938/2021-section-11-equity-groups/31359/document/xlsx
+    expected_format: xlsx
+    published_at: "2023-02-09"
+
+  - <<: *doe_2021_11
+    source_id: doe_s15_2021
+    section: "15"
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2021-section-15-attrition-success-and-retention
+    download_url: https://www.education.gov.au/download/14942/2021-section-15-attrition-success-and-retention/31374/document/xlsx
+
+  - <<: *doe_2021_11
+    source_id: doe_s16_2021
+    section: "16"
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2021-section-16-equity-performance-data
+    download_url: https://www.education.gov.au/download/14943/2021-section-16-equity-performance-data/31364/document/xlsx
+
+  - <<: *doe_2021_11
+    source_id: doe_s11_2022
+    year: 2022
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2022-section-11-equity-groups
+    download_url: https://www.education.gov.au/download/17798/2022-section-11-equity-groups/38884/document/xlsx
+    published_at: "2023-12-18"
+
+  - <<: *doe_2021_11
+    source_id: doe_s15_2022
+    section: "15"
+    year: 2022
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2022-section-15-attrition-success-and-retention
+    download_url: https://www.education.gov.au/download/17802/2022-section-15-attrition-success-and-retention/35997/document/xlsx
+    published_at: "2023-12-18"
+
+  - <<: *doe_2021_11
+    source_id: doe_s16_2022
+    section: "16"
+    year: 2022
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2022-section-16-equity-performance-data
+    download_url: https://www.education.gov.au/download/17803/2022-section-16-equity-performance-data/38885/document/xlsx
+    published_at: "2023-12-18"
+
+  - <<: *doe_2021_11
+    source_id: doe_s11_2023
+    year: 2023
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2023-section-11-equity-groups
+    download_url: https://www.education.gov.au/download/18601/2023-section-11-equity-groups/39166/document/xlsx
+    published_at: "2024-09-17"
+
+  - <<: *doe_2021_11
+    source_id: doe_s15_2023
+    section: "15"
+    year: 2023
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2023-section-15-attrition-success-and-retention
+    download_url: https://www.education.gov.au/download/18605/2023-section-15-attrition-success-and-retention/39170/document/xlsx
+    published_at: "2024-09-17"
+
+  - <<: *doe_2021_11
+    source_id: doe_s16_2023
+    section: "16"
+    year: 2023
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2023-section-16-equity-performance-data
+    download_url: https://www.education.gov.au/download/18606/2023-section-16-equity-performance-data/40697/document/xlsx
+    published_at: "2024-09-17"
+    modified_at: "2025-02-25"
+    file_reference: D25/559295
+
+  - <<: *doe_2021_11
+    source_id: doe_s17_2023
+    section: "17"
+    year: 2023
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2023-section-17-completion-rates
+    download_url: https://www.education.gov.au/download/18607/2023-section-17-completion-rates/39172/document/xlsx
+    published_at: "2024-09-17"
+
+  - <<: *doe_2021_11
+    source_id: doe_s11_2024
+    year: 2024
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2024-section-11-equity-groups
+    download_url: https://www.education.gov.au/download/19498/2024-section-11-equity-groups/41964/document/xlsx
+    published_at: "2025-09-08"
+    file_reference: D25/4988009
+
+  - <<: *doe_2021_11
+    source_id: doe_s15_2024
+    section: "15"
+    year: 2024
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2024-section-15-attrition-success-and-retention
+    download_url: https://www.education.gov.au/download/19501/2024-section-15-attrition-success-and-retention/41968/document/xlsx
+    published_at: "2025-09-08"
+    file_reference: D25/4988026
+
+  - <<: *doe_2021_11
+    source_id: doe_s16_2024
+    section: "16"
+    year: 2024
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2024-section-16-equity-performance-data
+    download_url: https://www.education.gov.au/download/19500/2024-section-16-equity-performance-data/42830/document/xlsx
+    published_at: "2025-09-08"
+    modified_at: "2025-11-03"
+    file_reference: D25/4994031
+
+  - <<: *doe_2021_11
+    source_id: doe_s17_2024
+    section: "17"
+    year: 2024
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/2024-section-17-completion-rates
+    download_url: https://www.education.gov.au/download/19499/2024-section-17-completion-rates/41970/document/xlsx
+    published_at: "2025-09-08"
+
+  # Before 2023, completion rates were issued as cumulative cohort-analysis
+  # publications rather than annual Section 17 workbooks. These entries keep
+  # the expected coverage visible without inventing direct-download mappings.
+  - &historical_completion
+    source_id: doe_s17_2018
+    publisher: Department of Education
+    dataset: Completion Rates Cohort Analyses
+    section: "17"
+    year: 2018
+    status: manual_resolution_required
+    publication_url: https://www.education.gov.au/higher-education-statistics/completion-rates-cohort-analyses
+    download_url:
+    expected_format: xlsx
+    allowed_hosts: *doe_hosts
+    notes: Pre-2023 archive mapping requires documented manual verification.
+
+  - <<: *historical_completion
+    source_id: doe_s17_2019
+    year: 2019
+  - <<: *historical_completion
+    source_id: doe_s17_2020
+    year: 2020
+  - <<: *historical_completion
+    source_id: doe_s17_2021
+    year: 2021
+  - <<: *historical_completion
+    source_id: doe_s17_2022
+    year: 2022
+
+  - source_id: qilt_ses_2024
+    publisher: QILT
+    dataset: Student Experience Survey
+    section: ses
+    year: 2024
+    status: manual_resolution_required
+    publication_url: https://qilt.edu.au/resources
+    download_url:
+    expected_format: xlsx
+    allowed_hosts: [qilt.edu.au, www.qilt.edu.au]
+    notes: The official page exposes reports but no stable public institution-level data-table URL.
+
+  - &abs_seifa
+    source_id: abs_seifa_poa_2021
+    publisher: Australian Bureau of Statistics
+    dataset: Socio-Economic Indexes for Areas
+    section: seifa
+    year: 2021
+    status: active
+    publication_url: https://www.abs.gov.au/statistics/people/people-and-communities/socio-economic-indexes-areas-seifa-australia/latest-release
+    download_url: https://www.abs.gov.au/statistics/people/people-and-communities/socio-economic-indexes-areas-seifa-australia/2021/Postal%20Area%2C%20Indexes%2C%20SEIFA%202021.xlsx
+    expected_format: xlsx
+    published_at: "2023-04-27"
+    allowed_hosts: &abs_hosts [www.abs.gov.au]
+    notes: Postal Area index cube used for postcode-level synthetic cohort calibration.
+
+  - <<: *abs_seifa
+    source_id: abs_seifa_sa2_2021
+    download_url: https://www.abs.gov.au/statistics/people/people-and-communities/socio-economic-indexes-areas-seifa-australia/2021/Statistical%20Area%20Level%202%2C%20Indexes%2C%20SEIFA%202021.xlsx
+    notes: Statistical Area Level 2 index cube.
