@@ -89,7 +89,12 @@ def test_select_sources_filters_and_excludes_inactive(source) -> None:
 def test_production_registry_has_expected_governance() -> None:
     sources = load_registry(Path("config/sources.yml"))
     assert len(sources) == 31
-    assert sum(source.status == "active" for source in sources) == 25
+    assert sum(source.status == "active" for source in sources) == 31
+    assert sum(source.status == "manual_resolution_required" for source in sources) == 0
+    assert (
+        next(source for source in sources if source.source_id == "qilt_ses_2024").expected_format
+        == "zip"
+    )
     assert {source.publisher for source in sources} == {
         "Department of Education",
         "QILT",

@@ -67,3 +67,28 @@ def test_valid_csv_is_accepted(write_file) -> None:
 def test_invalid_csv_is_rejected(write_file, body: bytes) -> None:
     with pytest.raises(ValidationError):
         validate_download(write_file(body), "csv", "text/csv")
+
+
+def test_valid_tabular_zip_is_accepted(tmp_path: Path, xlsx_bytes: bytes) -> None:
+    path = tmp_path / "tables.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("reports/tables.xlsx", xlsx_bytes)
+        archive.writestr("reports/readme.txt", "Official report tables")
+    validate_download(path, "zip", "application/zip")
+
+
+def test_zip_without_supported_tabular_data_is_rejected(tmp_path: Path) -> None:
+    path = tmp_path / "documents.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("readme.txt", "No data workbook")
+    with pytest.raises(ValidationError, match="tabular"):
+        validate_download(path, "zip", "application/zip")
+
+
+@pytest.mark.parametrize("member", ["../tables.xlsx", "/absolute/tables.xlsx", "..\\tables.xlsx"])
+def test_unsafe_zip_member_path_is_rejected(tmp_path: Path, xlsx_bytes: bytes, member: str) -> None:
+    path = tmp_path / "unsafe.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr(member, xlsx_bytes)
+    with pytest.raises(ValidationError, match="unsafe"):
+        validate_download(path, "zip", "application/zip")

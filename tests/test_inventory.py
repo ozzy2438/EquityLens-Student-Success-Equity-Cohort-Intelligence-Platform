@@ -1,4 +1,6 @@
+from io import BytesIO
 from pathlib import Path
+from zipfile import ZipFile
 
 from equitylens_ingestion.inventory import inspect_workbook
 
@@ -55,3 +57,31 @@ def test_xls_inventory_uses_sheet_visibility(monkeypatch, tmp_path: Path) -> Non
     sheets = inspect_workbook(tmp_path / "legacy.part", "xls")
     assert [sheet["visibility"] for sheet in sheets] == ["visible", "very_hidden"]
     assert book.released is True
+
+
+def test_zip_inventory_records_contained_workbook(tmp_path: Path, xlsx_bytes: bytes) -> None:
+    path = tmp_path / "report-tables.zip"
+    with ZipFile(path, "w") as archive:
+        archive.writestr("SES_Report_Tables.xlsx", xlsx_bytes)
+        archive.writestr("SES_Report_Tables.ods", b"not inspected")
+
+    sheets = inspect_workbook(path, "zip")
+    assert len(sheets) == 2
+    assert {sheet["workbook"] for sheet in sheets} == {"SES_Report_Tables.xlsx"}
+    assert sheets[0]["name"] == "Summary"
+    assert sheets[0]["rows"] == 2
+
+
+def test_xlsx_inventory_repairs_incorrect_a1_dimension(tmp_path: Path, xlsx_bytes: bytes) -> None:
+    source = BytesIO(xlsx_bytes)
+    path = tmp_path / "incorrect-dimension.xlsx"
+    with ZipFile(source) as input_archive, ZipFile(path, "w") as output_archive:
+        for member in input_archive.infolist():
+            content = input_archive.read(member.filename)
+            if member.filename == "xl/worksheets/sheet1.xml":
+                content = content.replace(b'<dimension ref="A1:B2"/>', b'<dimension ref="A1"/>')
+            output_archive.writestr(member, content)
+
+    sheets = inspect_workbook(path, "xlsx")
+    assert sheets[0]["rows"] == 2
+    assert sheets[0]["columns"] == 2
