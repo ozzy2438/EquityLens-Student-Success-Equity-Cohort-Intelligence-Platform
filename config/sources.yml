@@ -1,8 +1,8 @@
 schema_version: 1
 
 # Only authoritative publisher pages and downloads are registered. Historical
-# completion entries remain inactive until their archive-to-reference-year
-# mapping is reviewed; their URLs are deliberately not inferred.
+# completion URLs were resolved from the Department's cohort-analysis archive;
+# no URL was inferred by substituting a year into another publication path.
 sources:
   - &doe_2018_11
     source_id: doe_s11_2018
@@ -190,45 +190,68 @@ sources:
     published_at: "2025-09-08"
 
   # Before 2023, completion rates were issued as cumulative cohort-analysis
-  # publications rather than annual Section 17 workbooks. These entries keep
-  # the expected coverage visible without inventing direct-download mappings.
+  # publications rather than annual Section 17 workbooks. `year` identifies
+  # the final reference year in each official cumulative workbook.
   - &historical_completion
     source_id: doe_s17_2018
     publisher: Department of Education
     dataset: Completion Rates Cohort Analyses
     section: "17"
     year: 2018
-    status: manual_resolution_required
-    publication_url: https://www.education.gov.au/higher-education-statistics/completion-rates-cohort-analyses
-    download_url:
+    status: active
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/completion-rates-higher-education-students-cohort-analysis-2005-2018
+    download_url: https://www.education.gov.au/download/4660/completion-rates-higher-education-students-cohort-analysis-2005-2018/6978/document/xlsx
     expected_format: xlsx
+    published_at: "2019-08-28"
+    file_reference: D19/1363980
     allowed_hosts: *doe_hosts
-    notes: Pre-2023 archive mapping requires documented manual verification.
+    notes: Official cumulative cohort analysis ending in reference year 2018; not an annual Section 17-labelled release.
 
   - <<: *historical_completion
     source_id: doe_s17_2019
     year: 2019
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/completion-rates-higher-education-students-cohort-analysis-2005-2019
+    download_url: https://www.education.gov.au/download/5091/completion-rates-higher-education-students-cohort-analysis-2005-2019/7629/document/xlsx
+    published_at: "2020-09-08"
+    file_reference: D20/978562
+    notes: Official cumulative cohort analysis ending in reference year 2019; not an annual Section 17-labelled release.
   - <<: *historical_completion
     source_id: doe_s17_2020
     year: 2020
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/completion-rates-higher-education-students-cohort-analysis-20052020
+    download_url: https://www.education.gov.au/download/13353/completion-rates-higher-education-students-cohort-analysis-2005-2020/25767/document/xlsx
+    published_at: "2022-02-14"
+    modified_at: "2022-04-26"
+    file_reference: D22/70121
+    notes: Official cumulative cohort analysis ending in reference year 2020; not an annual Section 17-labelled release.
   - <<: *historical_completion
     source_id: doe_s17_2021
     year: 2021
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/completion-rates-higher-education-students-cohort-analysis-20052021
+    download_url: https://www.education.gov.au/download/14944/completion-rates-higher-education-students-cohort-analysis-2005-2021/31365/document/xlsx
+    published_at: "2023-02-09"
+    file_reference:
+    notes: Official cumulative cohort analysis ending in reference year 2021; not an annual Section 17-labelled release.
   - <<: *historical_completion
     source_id: doe_s17_2022
     year: 2022
+    publication_url: https://www.education.gov.au/higher-education-statistics/resources/completion-rates-higher-education-students-cohort-analysis-20052022
+    download_url: https://www.education.gov.au/download/17804/completion-rates-higher-education-students-cohort-analysis-2005-2022/35999/document/xlsx
+    published_at: "2023-12-18"
+    file_reference: D23/4870105
+    notes: Official cumulative cohort analysis ending in reference year 2022; not an annual Section 17-labelled release.
 
   - source_id: qilt_ses_2024
     publisher: QILT
     dataset: Student Experience Survey
     section: ses
     year: 2024
-    status: manual_resolution_required
-    publication_url: https://qilt.edu.au/resources
-    download_url:
-    expected_format: xlsx
+    status: active
+    publication_url: https://www.qilt.edu.au/surveys/student-experience-survey-%28ses%29
+    download_url: https://www.qilt.edu.au/docs/default-source/default-document-library/ses_2024_national_report_tables.zip?sfvrsn=f1ce2f6e_1
+    expected_format: zip
     allowed_hosts: [qilt.edu.au, www.qilt.edu.au]
-    notes: The official page exposes reports but no stable public institution-level data-table URL.
+    notes: Official public National Report Tables archive; contains XLSX and ODS files with institution-level confidence-interval worksheets.
 
   - &abs_seifa
     source_id: abs_seifa_poa_2021

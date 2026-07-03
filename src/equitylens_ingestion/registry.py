@@ -13,7 +13,7 @@ from equitylens_ingestion.models import Source
 
 _SOURCE_ID = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 _STATUSES = {"active", "manual_resolution_required", "retired"}
-_FORMATS = {"xlsx", "xls", "csv"}
+_FORMATS = {"xlsx", "xls", "csv", "zip"}
 
 
 def _required(item: dict[str, object], key: str) -> object:
