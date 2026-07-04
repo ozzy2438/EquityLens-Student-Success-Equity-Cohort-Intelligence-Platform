@@ -169,6 +169,7 @@ def check_enrolment_vs_performance_base_counts(
           ON p.institution_id = e.institution_id
          AND p.year_value = e.year_value
          AND p.equity_group_id = 'all_domestic'
+         AND p.metric = 'access_numbers'
         WHERE e.equity_group_id = 'all_students'
           AND e.value IS NOT NULL
           AND p.value IS NOT NULL
