@@ -96,11 +96,35 @@ def test_check_enrolment_vs_performance_base_counts_flags_disagreement(connectio
     )
     connection.execute(
         "INSERT INTO fact_equity_performance VALUES "
-        "('acu', 2023, 'all_domestic', 'commencing_domestic_students', "
+        "('acu', 2023, 'all_domestic', 'access_numbers', "
         "NULL, 800, FALSE, 'src', 'sheet')"
     )
     findings = check_enrolment_vs_performance_base_counts(connection)
     assert len(findings) == 1
+
+
+def test_check_enrolment_vs_performance_base_counts_ignores_rate_metrics(connection) -> None:
+    # fact_equity_performance also carries retention_rate/success_rate rows
+    # under equity_group_id='all_domestic' (the rate's own base row, not a
+    # headcount) -- these must not be compared against Section 11's headcount
+    # as if they were comparable counts (regression test for the missing
+    # p.metric filter bug, the same failure mode as the completion-metric bug
+    # above: an 800-count row and an 86.85%-rate row would look wildly
+    # "disagreeing" even though they are not the same kind of quantity).
+    connection.execute(
+        "INSERT INTO fact_enrolment_equity VALUES "
+        "('acu', 2023, 'all_students', 'commencing_domestic_students', "
+        "NULL, 1000, FALSE, 'src', 'sheet')"
+    )
+    connection.execute(
+        "INSERT INTO fact_equity_performance VALUES "
+        "('acu', 2023, 'all_domestic', 'retention_rate', NULL, 86.85, FALSE, 'src', 'sheet')"
+    )
+    connection.execute(
+        "INSERT INTO fact_equity_performance VALUES "
+        "('acu', 2023, 'all_domestic', 'success_rate', NULL, 89.53, FALSE, 'src', 'sheet')"
+    )
+    assert check_enrolment_vs_performance_base_counts(connection) == []
 
 
 def test_run_all_checks_aggregates_every_check(connection) -> None:

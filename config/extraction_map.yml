@@ -159,6 +159,17 @@ rules:
         - {column: 12, equity_group: remote_first_address}
         - {column: 13, equity_group: all_students}
 
+  # 2023 already dropped the postcode-based Low SES column (confirmed against
+  # the real header row: 2022 still has "Low SES by postcode" at column 6,
+  # 2023 does not) -- one year earlier than originally assumed when this rule
+  # was first written by reusing the 2020-2022 12-column template unchanged.
+  # That off-by-one column shift had silently mapped column 12
+  # ("Commencing Domestic Students", i.e. `all_students`) to
+  # `remote_first_address` instead, producing an implausible ~10,000-student
+  # "remote first address" figure for every 2023 institution -- caught while
+  # grounding the Phase 3 calibration target contract in real numbers, not by
+  # any automated check (the value was large but not out of the reconciled
+  # 0-100 rate range, since S11 facts are raw counts, not rates).
   - source_id: doe_s11_2023
     sheet: "11.3"
     table_number: "11.3"
@@ -175,14 +186,13 @@ rules:
         - {column: 3, equity_group: disability}
         - {column: 4, equity_group: women_non_traditional_area}
         - {column: 5, equity_group: first_nations}
-        - {column: 6, equity_group: low_ses_postcode}
-        - {column: 7, equity_group: low_ses_sa1}
-        - {column: 8, equity_group: low_ses_sa1_first_address}
-        - {column: 9, equity_group: regional}
-        - {column: 10, equity_group: regional_first_address}
-        - {column: 11, equity_group: remote}
-        - {column: 12, equity_group: remote_first_address}
-        - {column: 13, equity_group: all_students}
+        - {column: 6, equity_group: low_ses_sa1}
+        - {column: 7, equity_group: low_ses_sa1_first_address}
+        - {column: 8, equity_group: regional}
+        - {column: 9, equity_group: regional_first_address}
+        - {column: 10, equity_group: remote}
+        - {column: 11, equity_group: remote_first_address}
+        - {column: 12, equity_group: all_students}
 
   # 2024: institution-level table moved to "11.5"; the postcode-based Low SES
   # measure was dropped in favour of SA1-only, and "Indigenous" was relabelled
@@ -535,6 +545,159 @@ rules:
       data_start_row: 4
       value_start_col: 2
       metric: access_numbers
+
+  # Equity-specific Retention Rate table: "New Normal Retention Rate" through
+  # 2022, renamed "Provider Retention Rate" from 2023 -- same underlying
+  # calculation (confirmed by identical overlapping-year values), so both
+  # eras share one `metric`/`metric_definition` pair to dedup correctly
+  # across republished history, exactly like the access_numbers/all_domestic
+  # renames above.
+  - source_id: doe_s16_2018
+    sheet: "6"
+    table_number: "16.6"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: &s16_retention_pseudo
+      layout: pseudo_header_single_column
+      name_col: 0
+      category_header_row: 3
+      year_header_row: 4
+      data_start_row: 5
+      value_start_col: 1
+      metric: retention_rate
+
+  - source_id: doe_s16_2019
+    sheet: "6"
+    table_number: "16.6"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: *s16_retention_pseudo
+
+  - source_id: doe_s16_2020
+    sheet: "6"
+    table_number: "16.6"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: *s16_retention_pseudo
+
+  - source_id: doe_s16_2021
+    sheet: "6"
+    table_number: "16.6"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: *s16_retention_pseudo
+
+  - source_id: doe_s16_2022
+    sheet: "6"
+    table_number: "16.6"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: *s16_retention_pseudo
+
+  - source_id: doe_s16_2023
+    sheet: "16.6"
+    table_number: "16.6"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options:
+      layout: flat_group_category
+      group_col: 0
+      category_col: 1
+      category_header_row: 3
+      year_header_row: 4
+      data_start_row: 5
+      value_start_col: 2
+      metric: retention_rate
+
+  - source_id: doe_s16_2024
+    sheet: "16.8"
+    table_number: "16.8"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options:
+      layout: flat_group_category
+      group_col: 0
+      category_col: 1
+      category_header_row: 2
+      year_header_row: 3
+      data_start_row: 4
+      value_start_col: 2
+      metric: retention_rate
+
+  # Equity-specific Success Rate table: same table across all seven years,
+  # renumbered 16.8 -> 16.10 in 2024 alongside the section-wide table
+  # insertions that year (see Section 11/15 renumbering notes above).
+  - source_id: doe_s16_2018
+    sheet: "8"
+    table_number: "16.8"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: &s16_success_pseudo
+      layout: pseudo_header_single_column
+      name_col: 0
+      category_header_row: 3
+      year_header_row: 4
+      data_start_row: 5
+      value_start_col: 1
+      metric: success_rate
+
+  - source_id: doe_s16_2019
+    sheet: "8"
+    table_number: "16.8"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: *s16_success_pseudo
+
+  - source_id: doe_s16_2020
+    sheet: "8"
+    table_number: "16.8"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: *s16_success_pseudo
+
+  - source_id: doe_s16_2021
+    sheet: "8"
+    table_number: "16.8"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: *s16_success_pseudo
+
+  - source_id: doe_s16_2022
+    sheet: "8"
+    table_number: "16.8"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options: *s16_success_pseudo
+
+  - source_id: doe_s16_2023
+    sheet: "16.8"
+    table_number: "16.8"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options:
+      layout: flat_group_category
+      group_col: 0
+      category_col: 1
+      category_header_row: 3
+      year_header_row: 4
+      data_start_row: 5
+      value_start_col: 2
+      metric: success_rate
+
+  - source_id: doe_s16_2024
+    sheet: "16.10"
+    table_number: "16.10"
+    target_fact: fact_equity_performance
+    header_style: s16_institution_block
+    options:
+      layout: flat_group_category
+      group_col: 0
+      category_col: 1
+      category_header_row: 2
+      year_header_row: 3
+      data_start_row: 4
+      value_start_col: 2
+      metric: success_rate
 
   # ============================== Section 17 ==============================
   # Historical cumulative cohort-analysis publications (2018-2022): sheet

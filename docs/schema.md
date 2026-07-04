@@ -163,6 +163,16 @@ smaller "loaded after deduplication" count.
   `'not_disaggregated'`: S15 institution tables carry no equity split.
 - **`fact_equity_performance`** (Section 16) -- grain: institution x year x
   equity_group x metric x metric_definition. No `state` column (see above).
+  Three metrics are loaded: `access_numbers` (headcount by equity group,
+  Table 16.1/16.1a), `retention_rate` (Table 16.6/16.8, "New Normal Retention
+  Rate" pre-2023 and "Provider Retention Rate" 2023+ -- confirmed the same
+  calculation via identical overlapping-year values, harmonised to one
+  metric name), and `success_rate` (Table 16.8/16.10, same pattern). These
+  two rate tables were added after Phase 2's initial cut, which had only
+  loaded the headcount table -- Phase 3's calibration target contract needed
+  equity-disaggregated outcome rates, not just enrolment counts, and their
+  absence was caught by checking the target contract against the warehouse
+  before writing it rather than assuming coverage.
 - **`fact_completion_cohort`** (Section 17) -- grain: institution x
   cohort_end_year x tracking_window_years x metric x metric_definition.
   `is_annual_release` distinguishes the true 2023/2024 annual releases from
@@ -241,15 +251,18 @@ treating the warehouse as calibration-ready:
 | 2020 | 42 | 0 | 0.0% |
 | 2021 | 42 | 0 | 0.0% |
 | 2022 | 42 | 0 | 0.0% |
-| 2023 | 43 | 10 | 7.7% |
+| 2023 | 43 | 0 | 0.0% |
 | 2024 | 43 | 0 | 0.0% |
 
-2023 is the only year with any disagreement, and it has a specific, citable
-cause rather than being a parsing defect: see "Current findings" below for
-the exact footnote. **Every other year agrees exactly**, which is the actual
+**All seven years now agree exactly.** This table originally showed 10
+flagged institutions and 7.7% average disagreement in 2023, attributed at
+the time to a DoE footnote about unique-student-count methodology. That
+explanation turned out to be wrong: the real cause was a column-index bug in
+the 2023 Section 11 extraction rule (see "Current findings" below), and once
+fixed the 2023 column agrees with every other year. This is the actual
 evidence that Section 11 and Section 16 are safe to draw calibration targets
 from -- not just that the reconciliation check exists, but that it passes
-cleanly across six of the seven years and the one exception is understood.
+cleanly across all seven years once the underlying extraction is correct.
 
 ## Reconciliation: the actual quality gate
 
@@ -280,11 +293,22 @@ Four checks run via `reconciliation.run_all_checks`:
    a regression test written specifically for this bug).
 4. **`enrolment_vs_performance_base_counts`** (warning): flags institution x
    year pairs where Section 11's commencing domestic count and Section 16's
-   base count disagree by more than 10%.
+   base count disagree by more than 10% -- filtered to `p.metric =
+   'access_numbers'` specifically. The same failure mode as check 3 recurred
+   here when `retention_rate`/`success_rate` were added to
+   `fact_equity_performance`: both also carry a row under
+   `equity_group_id = 'all_domestic'` (their own base for computing a rate,
+   e.g. 86.85), and without the metric filter the check briefly compared
+   Section 11 headcounts (e.g. 1000 students) against those percentages as
+   if they were the same kind of quantity, producing 546 findings instead of
+   10. Caught immediately by rerunning reconciliation after adding the new
+   tables rather than assuming the existing check still applied cleanly; the
+   fix is covered by
+   `tests/test_reconciliation.py::test_check_enrolment_vs_performance_base_counts_ignores_rate_metrics`.
 
 ### Current findings against the real corpus (2026-07-04 build)
 
-24 warnings, 0 errors:
+14 warnings, 0 errors:
 
 - 14 year-over-year jumps, all attributable to genuine publisher events
   already documented elsewhere in this repo or in the source data itself:
@@ -299,23 +323,30 @@ Four checks run via `reconciliation.run_all_checks`:
   `config/institution_map.yml`), and University of Divinity's 2006 swing (a
   very small commencing cohort, where a handful of students moves the rate
   by double digits).
-- 10 `enrolment_vs_performance_base_counts` findings, **all in 2023 only**
-  (verified by running the check per-year: 2018, 2019, 2020, 2021, 2022, and
-  2024 each produce **zero** disagreement across all 42-43 institutions --
-  2023 is a genuinely isolated anomaly, not a systematic parsing defect
-  affecting the check generally). The 2023 divergence has a specific,
-  citable explanation: DoE S16 2023 footnote (g), attached directly to the
-  "Domestic National Total" row used as the Section 16 base, reads "the
-  totals represent the unique student count and may be less than the sum of
-  all equity groups because a student may belong to more than one equity
-  group." Section 11's base ("All Domestic Students") is not deduplicated
-  the same way, so a 2023-specific unique-count methodology on the Section
-  16 side is a sufficient, documented explanation for a base-count gap that
-  does not appear in any other year. Average disagreement is 7.7%, and the
-  Batchelor Institute (the warehouse's only NUHEI with individual-institution
-  data) is among the flagged rows at very small absolute counts (4 vs 7
-  students) -- consistent with the same unique-count effect being more
-  visible at small N, not with a broken join.
+- `enrolment_vs_performance_base_counts` now produces **zero** findings in
+  every year. An earlier version of this document recorded 10 findings, all
+  in 2023, and attributed them to DoE S16 2023 footnote (g) ("totals
+  represent the unique student count ... may be less than the sum of all
+  equity groups"). **That explanation was wrong and has been corrected.**
+  While grounding the Phase 3 calibration target contract in real numbers
+  (see `docs/calibration_targets.md`), ACU's 2023 `remote_first_address`
+  enrolment count came back as ~10,000 -- larger than the institution's
+  entire commencing cohort, an impossible value for a "first address in a
+  remote area" subgroup. The actual cause was a column-index bug in
+  `config/extraction_map.yml`'s `doe_s11_2023` rule: the postcode-based Low
+  SES column was dropped from Section 11's table starting in **2023**, not
+  2024 as originally assumed when that rule was copy-templated from
+  2020-2022, silently shifting every subsequent equity column (including
+  `all_students`) over by one. Once fixed, both the implausible value and
+  all 10 reconciliation findings disappeared together -- strong evidence the
+  footnote (g) explanation had been a plausible-sounding but incorrect
+  post-hoc story for what was actually a parsing defect. The footnote (g)
+  effect may still exist in the data at a level below the check's 10%
+  threshold; it just was not the cause of these particular findings. This is
+  recorded here deliberately as a caution: a reconciliation check passing or
+  a citable-sounding footnote is not proof of correctness by itself -- the
+  bug was only caught by independently cross-checking a specific number
+  against plausibility, not by any automated check in this repository.
 
 ## Phase 3 gate
 
