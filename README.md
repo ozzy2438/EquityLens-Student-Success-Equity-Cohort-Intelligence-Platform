@@ -1,9 +1,26 @@
 # EquityLens
 
 EquityLens is a student-success and equity cohort intelligence platform. This
-repository currently implements the Day 1 governed ingestion foundation only:
-analysis, student-level modelling, and dashboards are intentionally out of
+repository currently implements the governed ingestion foundation (Day 1) and
+the normalisation/warehouse layer (Phase 2) only: synthetic cohort
+calibration, risk scoring, evaluation, and dashboards are intentionally out of
 scope.
+
+## Phase 2 completion status
+
+`equitylens-normalize build` turns the 31 raw workbooks into a tested
+`institution x year x equity_group x metric` DuckDB warehouse
+(`data/warehouse/equitylens.duckdb`, git-ignored). Sheet-level extraction
+rules live in [`config/extraction_map.yml`](config/extraction_map.yml);
+institution identity (renames, footnote-marked names, a genuine publisher
+typo) is resolved via [`config/institution_map.yml`](config/institution_map.yml).
+`equitylens-normalize reconcile` runs four cross-source semantic checks
+against the warehouse; the current production build produces 24 warnings and
+zero errors, all explained as known publisher anomalies. See
+[`docs/schema.md`](docs/schema.md) for the star schema, the three DoE
+sheet-naming/layout eras discovered while building the extraction map, and
+[`queries/sanity_checks.sql`](queries/sanity_checks.sql) for the discovery
+queries and their findings.
 
 ## Day 1 completion status
 
@@ -55,6 +72,12 @@ equitylens-ingest ingest --all
 # Target a publisher, section, year, or combination
 equitylens-ingest ingest --publisher "Department of Education" --section 15 --year 2024
 
+# Build the DuckDB warehouse from the raw corpus
+equitylens-normalize build
+
+# Run cross-source reconciliation checks against the warehouse
+equitylens-normalize reconcile
+
 # Quality gate
 ruff check .
 ruff format --check .
@@ -62,7 +85,8 @@ pytest
 ```
 
 Runtime outputs are written beneath `data/` and excluded from Git. The source
-registry, code, tests, and empty directory markers remain version controlled.
+registry, code, tests, config, and empty directory markers remain version
+controlled.
 
 ## Runtime outputs
 
@@ -71,12 +95,14 @@ data/
 ├── raw/<publisher>/<dataset>/<year>/<source_id>/<sha256>__<source_id>.<ext>
 ├── manifests/source_manifest.json
 ├── manifests/file_manifest.jsonl
-└── inventory/workbook_inventory.jsonl
+├── inventory/workbook_inventory.jsonl
+└── warehouse/equitylens.duckdb
 ```
 
 See [the ingestion design](docs/ingestion_foundation.md), [source resolution
-notes](docs/source_resolution.md), and [contribution workflow](CONTRIBUTING.md).
+notes](docs/source_resolution.md), [the normalisation/warehouse
+schema](docs/schema.md), and [contribution workflow](CONTRIBUTING.md).
 
-Day 1 stops at governed raw acquisition and structural inventory. It does not
-perform normalization, cleaning, DuckDB modelling, risk scoring, evaluation,
-or Power BI development.
+Phase 2 stops at a tested, reconciled warehouse. It does not perform synthetic
+cohort generation, calibration, risk scoring, evaluation, or Power BI
+development.

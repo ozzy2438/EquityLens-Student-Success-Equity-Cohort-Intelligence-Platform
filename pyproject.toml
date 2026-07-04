@@ -15,6 +15,8 @@ dependencies = [
   "openpyxl>=3.1,<4",
   "PyYAML>=6.0,<7",
   "xlrd>=2.0,<3",
+  "pandas>=2.2,<3",
+  "duckdb>=1.1,<2",
 ]
 
 [project.optional-dependencies]
@@ -23,16 +25,18 @@ dev = [
   "pytest-cov>=5,<7",
   "respx>=0.21,<1",
   "ruff>=0.9,<1",
+  "xlwt>=1.3,<2",
 ]
 
 [project.scripts]
 equitylens-ingest = "equitylens_ingestion.cli:main"
+equitylens-normalize = "equitylens_normalization.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/equitylens_ingestion"]
+packages = ["src/equitylens_ingestion", "src/equitylens_normalization"]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers --strict-config --cov=equitylens_ingestion --cov-report=term-missing --cov-fail-under=85"
+addopts = "--strict-markers --strict-config --cov=equitylens_ingestion --cov=equitylens_normalization --cov-report=term-missing --cov-fail-under=85"
 testpaths = ["tests"]
 
 [tool.ruff]
