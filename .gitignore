@@ -14,6 +14,8 @@ build/
 data/raw/**
 data/manifests/**
 data/inventory/**
+data/warehouse/**
 !data/raw/.gitkeep
 !data/manifests/.gitkeep
 !data/inventory/.gitkeep
+!data/warehouse/.gitkeep

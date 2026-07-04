@@ -1,0 +1,346 @@
+schema_version: 1
+
+# Canonical institution identities for DoE Sections 11/15/16/17 (Table A and B
+# providers) and QILT SES university-level tables. Trailing footnote markers
+# such as "(f)", "(1.08)", "(1.03)" are stripped automatically by
+# institution_map.normalize_name() and do NOT need to be listed as aliases
+# here -- only genuinely different textual forms (typos, renames, name
+# changes) need an explicit alias entry.
+#
+# Coverage is scoped to Table A/B universities: DoE institution-level tables
+# never break out individual Non-University Higher Education Institutions
+# (NUHEIs) -- they appear only as an aggregate "Non-University Higher
+# Education Institutions" rollup row, handled specially by the normalizers,
+# not resolved through this alias table. QILT's NUHEI-level `_INST_CI` sheets
+# (dozens of small colleges with no DoE counterpart) are intentionally out of
+# scope for Phase 2: fact_ses_experience only loads QILT's university-level
+# sheets, since the analytical focus of this project is ACU and its
+# university peer set. See docs/schema.md for the disclosed scope note.
+
+institutions:
+  - canonical_id: acu
+    canonical_name: "Australian Catholic University"
+    type: university
+    state: multi_state
+    is_multi_state: true
+    peer_group_id: acu_peer_regional
+    aliases: ["Australian Catholic University", "ACU"]
+
+  - canonical_id: avondale_university
+    canonical_name: "Avondale University"
+    type: university
+    state: nsw
+    peer_group_id: acu_peer_regional
+    aliases: ["Avondale University", "Avondale university", "Avondale University College"]
+
+  - canonical_id: batchelor_institute
+    canonical_name: "Batchelor Institute of Indigenous Tertiary Education"
+    type: nuhei
+    state: nt
+    peer_group_id: null
+    aliases: ["Batchelor Institute of Indigenous Tertiary Education"]
+
+  - canonical_id: australian_maritime_college
+    canonical_name: "Australian Maritime College"
+    type: university
+    state: tas
+    peer_group_id: null
+    notes: "From 2008, reported as part of University of Tasmania (DoE S17 footnote 1.05); appears as a distinct row in pre-2008 cohort columns of the same wide-year tables."
+    aliases: ["Australian Maritime College"]
+
+  - canonical_id: bond_university
+    canonical_name: "Bond University"
+    type: university
+    state: qld
+    peer_group_id: null
+    aliases: ["Bond University"]
+
+  - canonical_id: cq_university
+    canonical_name: "CQUniversity"
+    type: university
+    state: qld
+    peer_group_id: null
+    aliases: ["CQUniversity", "Central Queensland University"]
+
+  - canonical_id: charles_darwin_university
+    canonical_name: "Charles Darwin University"
+    type: university
+    state: nt
+    peer_group_id: null
+    aliases: ["Charles Darwin University"]
+
+  - canonical_id: charles_sturt_university
+    canonical_name: "Charles Sturt University"
+    type: university
+    state: nsw
+    peer_group_id: acu_peer_regional
+    aliases: ["Charles Sturt University"]
+
+  - canonical_id: curtin_university
+    canonical_name: "Curtin University"
+    type: university
+    state: wa
+    peer_group_id: null
+    # "Curtin Universityy" is a genuine typo in the 2018 Section 11 workbook.
+    aliases: ["Curtin University", "Curtin Universityy", "Curtin University of Technology"]
+
+  - canonical_id: deakin_university
+    canonical_name: "Deakin University"
+    type: university
+    state: vic
+    peer_group_id: null
+    aliases: ["Deakin University"]
+
+  - canonical_id: edith_cowan_university
+    canonical_name: "Edith Cowan University"
+    type: university
+    state: wa
+    peer_group_id: null
+    aliases: ["Edith Cowan University"]
+
+  - canonical_id: federation_university_australia
+    canonical_name: "Federation University Australia"
+    type: university
+    state: vic
+    peer_group_id: acu_peer_regional
+    notes: "Renamed from University of Ballarat; footnote (f) in DoE S11 2018."
+    aliases: ["Federation University Australia", "University of Ballarat"]
+
+  - canonical_id: flinders_university
+    canonical_name: "Flinders University"
+    type: university
+    state: sa
+    peer_group_id: null
+    aliases: ["Flinders University"]
+
+  - canonical_id: griffith_university
+    canonical_name: "Griffith University"
+    type: university
+    state: qld
+    peer_group_id: null
+    aliases: ["Griffith University"]
+
+  - canonical_id: james_cook_university
+    canonical_name: "James Cook University"
+    type: university
+    state: qld
+    peer_group_id: null
+    aliases: ["James Cook University"]
+
+  - canonical_id: la_trobe_university
+    canonical_name: "La Trobe University"
+    type: university
+    state: vic
+    peer_group_id: null
+    aliases: ["La Trobe University"]
+
+  - canonical_id: macquarie_university
+    canonical_name: "Macquarie University"
+    type: university
+    state: nsw
+    peer_group_id: null
+    aliases: ["Macquarie University"]
+
+  - canonical_id: monash_university
+    canonical_name: "Monash University"
+    type: university
+    state: vic
+    peer_group_id: null
+    aliases: ["Monash University"]
+
+  - canonical_id: murdoch_university
+    canonical_name: "Murdoch University"
+    type: university
+    state: wa
+    peer_group_id: null
+    aliases: ["Murdoch University"]
+
+  - canonical_id: qut
+    canonical_name: "Queensland University of Technology"
+    type: university
+    state: qld
+    peer_group_id: null
+    aliases: ["Queensland University of Technology", "QUT"]
+
+  - canonical_id: rmit_university
+    canonical_name: "RMIT University"
+    type: university
+    state: vic
+    peer_group_id: null
+    aliases: ["RMIT University"]
+
+  - canonical_id: southern_cross_university
+    canonical_name: "Southern Cross University"
+    type: university
+    state: nsw
+    peer_group_id: null
+    aliases: ["Southern Cross University"]
+
+  - canonical_id: swinburne_university
+    canonical_name: "Swinburne University of Technology"
+    type: university
+    state: vic
+    peer_group_id: null
+    aliases: ["Swinburne University of Technology"]
+
+  - canonical_id: anu
+    canonical_name: "The Australian National University"
+    type: university
+    state: act
+    peer_group_id: null
+    aliases: ["The Australian National University", "Australian National University", "ANU"]
+
+  - canonical_id: university_of_adelaide
+    canonical_name: "The University of Adelaide"
+    type: university
+    state: sa
+    peer_group_id: null
+    aliases: ["The University of Adelaide", "University of Adelaide"]
+
+  - canonical_id: university_of_melbourne
+    canonical_name: "The University of Melbourne"
+    type: university
+    state: vic
+    peer_group_id: null
+    aliases: ["The University of Melbourne", "University of Melbourne"]
+
+  - canonical_id: une
+    canonical_name: "The University of New England"
+    type: university
+    state: nsw
+    peer_group_id: acu_peer_regional
+    aliases: ["The University of New England", "University of New England"]
+
+  - canonical_id: university_of_newcastle
+    canonical_name: "The University of Newcastle"
+    type: university
+    state: nsw
+    peer_group_id: null
+    aliases: ["The University of Newcastle", "University of Newcastle"]
+
+  - canonical_id: notre_dame_australia
+    canonical_name: "The University of Notre Dame Australia"
+    type: university
+    state: multi_state
+    is_multi_state: true
+    peer_group_id: null
+    aliases: ["The University of Notre Dame Australia", "University of Notre Dame Australia"]
+
+  - canonical_id: uq
+    canonical_name: "The University of Queensland"
+    type: university
+    state: qld
+    peer_group_id: null
+    aliases: ["The University of Queensland", "University of Queensland"]
+
+  - canonical_id: university_of_sydney
+    canonical_name: "The University of Sydney"
+    type: university
+    state: nsw
+    peer_group_id: null
+    aliases: ["The University of Sydney", "University of Sydney"]
+
+  - canonical_id: uwa
+    canonical_name: "The University of Western Australia"
+    type: university
+    state: wa
+    peer_group_id: null
+    aliases: ["The University of Western Australia", "University of Western Australia"]
+
+  - canonical_id: torrens_university
+    canonical_name: "Torrens University Australia"
+    type: university
+    state: multi_state
+    is_multi_state: true
+    peer_group_id: null
+    aliases: ["Torrens University Australia", "Torrens University"]
+
+  - canonical_id: university_of_canberra
+    canonical_name: "University of Canberra"
+    type: university
+    state: act
+    peer_group_id: null
+    aliases: ["University of Canberra"]
+
+  - canonical_id: university_of_divinity
+    canonical_name: "University of Divinity"
+    type: university
+    state: vic
+    peer_group_id: null
+    aliases: ["University of Divinity"]
+
+  - canonical_id: unsw
+    canonical_name: "University of New South Wales"
+    type: university
+    state: nsw
+    peer_group_id: null
+    aliases: ["University of New South Wales", "UNSW"]
+
+  - canonical_id: university_of_south_australia
+    canonical_name: "University of South Australia"
+    type: university
+    state: sa
+    peer_group_id: null
+    aliases: ["University of South Australia", "The University of South Australia", "UniSA"]
+
+  - canonical_id: usq
+    canonical_name: "University of Southern Queensland"
+    type: university
+    state: qld
+    peer_group_id: acu_peer_regional
+    aliases: ["University of Southern Queensland"]
+
+  - canonical_id: university_of_tasmania
+    canonical_name: "University of Tasmania"
+    type: university
+    state: tas
+    peer_group_id: null
+    aliases: ["University of Tasmania"]
+
+  - canonical_id: uts
+    canonical_name: "University of Technology Sydney"
+    type: university
+    state: nsw
+    peer_group_id: null
+    aliases: ["University of Technology Sydney", "University of Technology, Sydney", "UTS"]
+
+  - canonical_id: university_of_wollongong
+    canonical_name: "University of Wollongong"
+    type: university
+    state: nsw
+    peer_group_id: null
+    aliases: ["University of Wollongong"]
+
+  - canonical_id: usc
+    canonical_name: "University of the Sunshine Coast"
+    type: university
+    state: qld
+    peer_group_id: null
+    aliases: ["University of the Sunshine Coast"]
+
+  - canonical_id: victoria_university
+    canonical_name: "Victoria University"
+    type: university
+    state: vic
+    peer_group_id: null
+    aliases: ["Victoria University", "Victoria University of Technology"]
+
+  - canonical_id: western_sydney_university
+    canonical_name: "Western Sydney University"
+    type: university
+    state: nsw
+    peer_group_id: null
+    aliases: ["Western Sydney University", "University of Western Sydney"]
+
+  # Rollup rows that appear inline in DoE institution tables. These are not
+  # individual institutions; normalizers must exclude them from per-institution
+  # facts rather than resolving them through this alias table.
+  - canonical_id: __nuhei_rollup__
+    canonical_name: "Non-University Higher Education Institutions"
+    type: nuhei
+    state: unknown
+    peer_group_id: null
+    notes: "Aggregate rollup row, not an individual institution -- excluded from per-institution facts by normalizers."
+    aliases:
+      - "Non-University Higher Education Institutions"
+      - "Private Universities (Table C) and Non-University Higher Education Institutions"
