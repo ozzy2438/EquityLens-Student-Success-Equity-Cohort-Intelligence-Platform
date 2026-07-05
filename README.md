@@ -1,10 +1,41 @@
 # EquityLens
 
 EquityLens is a student-success and equity cohort intelligence platform. This
-repository currently implements the governed ingestion foundation (Day 1) and
-the normalisation/warehouse layer (Phase 2) only: synthetic cohort
-calibration, risk scoring, evaluation, and dashboards are intentionally out of
-scope.
+repository currently implements the governed ingestion foundation (Day 1),
+the normalisation/warehouse layer (Phase 2), and the calibration target
+contract plus synthetic population generation (Phase 3, Steps 0-2c) only:
+outcome assignment, risk scoring, evaluation, and dashboards are
+intentionally out of scope.
+
+## Phase 3 (Steps 2a-2c) status
+
+`equitylens-synthesize baseline` (Step 2a) and `equitylens-synthesize raked`
+(Step 2c) both generate a ~20K-student synthetic commencing cohort against
+`docs/calibration_targets.md`'s targets, but only one is trustworthy: the
+baseline samples every equity attribute independently (deliberately wrong,
+kept as a comparison point), while the raked population uses a from-scratch
+Iterative Proportional Fitting implementation
+([`raking.py`](src/equitylens_synthetic/raking.py)) seeded with real
+pairwise correlation structure from DoE Section 11's equity-group
+intersectionality table, then adjusted to match ACU's own marginals. Every
+target matches within 0.03 percentage points at 20,000 students, 3
+iterations. See [`docs/assumptions.md`](docs/assumptions.md) for every
+literature-sourced (non-warehouse) value the population depends on,
+including a disclosed counter-intuitive finding: these equity groups
+co-occur *less* than chance nationally, not more.
+
+## Phase 3 (Step 0) status
+
+`equitylens-calibrate targets` builds the versioned calibration target set
+defined in [`docs/calibration_targets.md`](docs/calibration_targets.md) --
+Section 11 equity-group enrolment shares (±1.0pp), Section 16 equity-specific
+retention/success rates (N-dependent tolerance, ±2.0pp down to excluded for
+n<10), and the national SEIFA decile distribution (±2.0pp) -- and writes it
+to `data/calibration/targets_v1_2023ref.json` (git-ignored), embedding the
+warehouse's own SHA-256 and the generating commit so any later run can prove
+which data and code produced a given target set. Suppressed cells are
+imputed from the sector average and flagged with `imputed_target_flag`
+rather than silently dropped or zeroed.
 
 ## Phase 2 completion status
 
@@ -15,7 +46,7 @@ rules live in [`config/extraction_map.yml`](config/extraction_map.yml);
 institution identity (renames, footnote-marked names, a genuine publisher
 typo) is resolved via [`config/institution_map.yml`](config/institution_map.yml).
 `equitylens-normalize reconcile` runs four cross-source semantic checks
-against the warehouse; the current production build produces 24 warnings and
+against the warehouse; the current production build produces 14 warnings and
 zero errors, all explained as known publisher anomalies. See
 [`docs/schema.md`](docs/schema.md) for the star schema, the three DoE
 sheet-naming/layout eras discovered while building the extraction map, and
@@ -77,6 +108,13 @@ equitylens-normalize build
 
 # Run cross-source reconciliation checks against the warehouse
 equitylens-normalize reconcile
+
+# Build the versioned calibration target set
+equitylens-calibrate targets
+
+# Generate the synthetic commencing cohort (baseline vs. raked)
+equitylens-synthesize --targets data/calibration/targets_v1_2023ref.json baseline
+equitylens-synthesize --targets data/calibration/targets_v1_2023ref.json raked
 
 # Quality gate
 ruff check .
