@@ -15,9 +15,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 from equitylens_risk.features import generate_census_engagement_signal
 from equitylens_synthetic.outcomes import (
     assign_retention_outcomes,
@@ -42,6 +39,9 @@ ILLUSTRATIVE_LABELS = [
 
 
 def main() -> None:
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
     target_set = load_target_set(TARGET_SET_PATH)
     population, _convergence, _integerization = build_raked_population(
         target_set, 20000, institution_id="acu", seed=42
