@@ -2,9 +2,48 @@
 
 EquityLens is a student-success and equity cohort intelligence platform. This
 repository currently implements the governed ingestion foundation (Day 1),
-the normalisation/warehouse layer (Phase 2), and calibration target
-generation through synthetic outcome assignment (Phase 3, Steps 0-3d) only:
-risk scoring, evaluation, and dashboards are intentionally out of scope.
+the normalisation/warehouse layer (Phase 2), calibration target generation
+through synthetic outcome assignment (Phase 3), and a first leakage-safe
+risk model plus its initial fairness/threshold audit (Phase 4a-4c bridge):
+full triage workflow, initiative evaluation (Phase 4d-4e), and dashboards
+are the remaining scope.
+
+## Phase 4 (Steps 4a-4b) status
+
+`docs/model_design.md` fixes the prediction point -- Semester 1 census
+date, predicting year-1 attrition -- **before** any model was fit, because
+the obvious behavioural feature (`success_rate_realized`, Phase 3c's
+full-year aggregate) shares its generator with the label itself and is not
+actually known at census date: using it would reproduce Phase 3's own
+AUC~0.67 finding under a different name, with the timing quietly wrong.
+`equitylens_risk.features.generate_census_engagement_signal` builds a
+feature that genuinely is available at census date instead, sharing
+`shared_latent_risk` but through a deliberately weaker connection than the
+full-year signal's -- measured at AUC=0.631 alone, and shown to move
+smoothly from ~0.59 to ~0.67 as that connection strengthens
+(`docs/images/auc_vs_decision_point.png`), the direct evidence that
+discrimination trades against how early the decision is made.
+
+`equitylens_risk.pipeline` builds train/holdout as two separate simulated
+cohorts (different seeds) rather than a row split -- and its own tests
+caught and disclosed a subtlety worth knowing before trusting the split:
+the raked demographic columns (`geography`, `low_ses`, `first_nations`,
+`seifa_decile`) come out identical between any two cohorts calibrated to
+the same targets (expected -- that is what calibration means), while every
+independently-assigned attribute and outcome signal varies as intended.
+
+`docs/model_results.md`: logistic regression and gradient boosting were
+compared on AUC, PR-AUC, Brier score, and calibration on the holdout
+cohort. Logistic regression wins or ties on every metric -- an expected
+result, not a surprise, since every synthetic outcome here is generated as
+a strictly additive-in-logit function with no interaction terms, exactly
+logistic regression's own functional form. It was selected for Phase
+4c-4d on that basis plus its direct per-student explainability, not decided
+in advance. The same results file now carries the first 4c/4d bridge too:
+group-level calibration, top-10%/15%/20% queue quality, and
+threshold-dependent group FNR with confidence intervals for small groups,
+so fairness is tied to the outreach queue the institution would actually
+run rather than to an arbitrary 0.5 cutoff.
 
 ## Phase 3 (Steps 3a-3d) status
 
