@@ -20,14 +20,23 @@ from pathlib import Path
 import duckdb
 
 from equitylens_calibration.models import (
+    CompletionTarget,
     EnrolmentShareTarget,
     RateTarget,
     SeifaDecileTarget,
     ToleranceTier,
 )
 
-TARGET_VERSION = "v1"
+# v2 added completion_rate targets (Phase 3 Step 3c needs a Section 17 proxy
+# for eventual completion, which v1's Step 0 contract did not include).
+# v3 fixes compute_rate_targets to include the institution's own
+# `all_domestic` rate as a target (Step 3 needs it as the logit anchor for
+# per-equity-group deltas; v1/v2 excluded it by mistakenly reusing the
+# Section 11 enrolment-share pattern, where the analogous `all_students` row
+# genuinely is just a denominator).
+TARGET_VERSION = "v3"
 REFERENCE_YEAR = 2023
+COMPLETION_TOLERANCE_PP = 2.0
 
 # N-dependent tolerance tiers for Section 16 retention/success rate targets
 # (docs/calibration_targets.md, target family 2). A flat tolerance is not
@@ -132,7 +141,17 @@ def compute_rate_targets(
 ) -> list[RateTarget]:
     """Section 16 retention_rate/success_rate target, one per
     institution x equity_group, with N-dependent tolerance and sector-average
-    imputation for suppressed cells."""
+    imputation for suppressed cells.
+
+    Includes `equity_group_id = 'all_domestic'` as its own target (the
+    institution's overall rate) -- an earlier version excluded it, copying
+    the pattern used for Section 11 enrolment shares, where `all_students` is
+    purely a denominator. For rates, `all_domestic` is not a denominator, it
+    is a directly published, large-N rate in its own right, and Phase 3
+    Step 3 needs it as one of the groups its own group-level logit anchor is
+    solved for (`outcomes.calibrate_anchors`), alongside every other equity
+    group.
+    """
 
     rows = connection.execute(
         """
@@ -145,7 +164,7 @@ def compute_rate_targets(
          AND n.year_value = r.year_value
          AND n.equity_group_id = r.equity_group_id
          AND n.metric = 'access_numbers'
-        WHERE r.year_value = ? AND r.metric = ? AND r.equity_group_id != 'all_domestic'
+        WHERE r.year_value = ? AND r.metric = ?
         """,
         [reference_year, metric],
     ).fetchall()
@@ -215,6 +234,39 @@ def compute_seifa_targets(connection: duckdb.DuckDBPyConnection) -> list[SeifaDe
     ]
 
 
+def compute_completion_targets(
+    connection: duckdb.DuckDBPyConnection, institution_id: str = "acu"
+) -> list[CompletionTarget]:
+    """Most recent available completion rate per tracking window (4/6/9-year)
+    -- there is no way to observe the true eventual completion rate for a
+    cohort commencing in `reference_year` (that would need 4-9 more years of
+    data), so the institution's own most recent historical rate per window
+    is used as a stability-assumption proxy. See docs/assumptions.md."""
+
+    rows = connection.execute(
+        """
+        SELECT tracking_window_years, cohort_end_year, value
+        FROM fact_completion_cohort
+        WHERE institution_id = ? AND metric = 'completion_rate' AND value IS NOT NULL
+        QUALIFY ROW_NUMBER() OVER (
+            PARTITION BY tracking_window_years ORDER BY cohort_end_year DESC
+        ) = 1
+        ORDER BY tracking_window_years
+        """,
+        [institution_id],
+    ).fetchall()
+    return [
+        CompletionTarget(
+            institution_id=institution_id,
+            tracking_window_years=window,
+            cohort_end_year=cohort_end_year,
+            value=value,
+            tolerance_pp=COMPLETION_TOLERANCE_PP,
+        )
+        for window, cohort_end_year, value in rows
+    ]
+
+
 def _warehouse_sha256(warehouse_path: Path) -> str:
     digest = hashlib.sha256()
     with warehouse_path.open("rb") as handle:
@@ -252,6 +304,7 @@ def build_target_set(
         retention = compute_rate_targets(connection, reference_year, "retention_rate")
         success = compute_rate_targets(connection, reference_year, "success_rate")
         seifa = compute_seifa_targets(connection)
+        completion = compute_completion_targets(connection)
     finally:
         connection.close()
 
@@ -268,6 +321,7 @@ def build_target_set(
             "retention_rate": [t.to_dict() for t in retention],
             "success_rate": [t.to_dict() for t in success],
             "seifa_decile_share": [t.to_dict() for t in seifa],
+            "completion_rate": [t.to_dict() for t in completion],
         },
     }
 

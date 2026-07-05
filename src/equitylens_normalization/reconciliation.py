@@ -18,6 +18,62 @@ RETENTION_VS_COMPLETION_HIGH_RETENTION = 85.0
 RETENTION_VS_COMPLETION_LOW_COMPLETION = 25.0
 BASE_COUNT_TOLERANCE_RATIO = 0.10
 
+# Declared grain per fact table (docs/schema.md). This is the generic
+# invariant that would have caught, structurally, the class of bug that
+# recurred three times while building this warehouse -- S16's
+# indigenous/first_nations and domestic_national_total/all_domestic label
+# drift, and S17's domestic_bachelor/domestic_bachelor__table_ab
+# metric_definition mismatch. Every one of those bugs let two source eras
+# report the same real-world fact under two different key values, so no row
+# ever technically violated its OWN table's grain -- the duplication was
+# only visible by noticing two near-identical values for what should have
+# been one number. `check_fact_grain_uniqueness` catches true grain
+# violations (the same key appearing twice, which should never happen after
+# `warehouse.deduplicate_overlapping_publications`); it is not, by itself, a
+# substitute for the manual-inspection habit that actually found those three
+# bugs, but every current key duplication -- any future dedup regression --
+# is now caught automatically rather than by chance.
+_FACT_GRAINS: dict[str, tuple[str, ...]] = {
+    "fact_enrolment_equity": (
+        "institution_id",
+        "year_value",
+        "equity_group_id",
+        "metric",
+        "metric_definition",
+    ),
+    "fact_retention_attrition": (
+        "institution_id",
+        "year_value",
+        "equity_group_id",
+        "metric",
+        "metric_definition",
+    ),
+    "fact_equity_performance": (
+        "institution_id",
+        "year_value",
+        "equity_group_id",
+        "metric",
+        "metric_definition",
+    ),
+    "fact_completion_cohort": (
+        "institution_id",
+        "cohort_end_year",
+        "tracking_window_years",
+        "equity_group_id",
+        "metric",
+        "metric_definition",
+    ),
+    "fact_seifa": ("geo_level", "geo_code", "year_value", "index_family"),
+    "fact_ses_experience": (
+        "institution_id",
+        "year_value",
+        "level",
+        "provider_type",
+        "year_scope",
+        "focus_area",
+    ),
+}
+
 
 def check_rate_bounds(connection: duckdb.DuckDBPyConnection) -> list[ReconciliationFinding]:
     """Flag any retention/attrition/success/completion value outside [0, 100]."""
@@ -197,11 +253,54 @@ def check_enrolment_vs_performance_base_counts(
     return findings
 
 
+def check_fact_grain_uniqueness(
+    connection: duckdb.DuckDBPyConnection,
+) -> list[ReconciliationFinding]:
+    """Every fact table must have exactly one row per its own declared grain
+    (`_FACT_GRAINS`, matching docs/schema.md). A violation here means
+    `warehouse.deduplicate_overlapping_publications` let two rows through
+    under the identical key -- which should be structurally impossible after
+    a build, so any finding here is an `error`, not a `warning`."""
+
+    findings: list[ReconciliationFinding] = []
+    for table, grain_columns in _FACT_GRAINS.items():
+        columns_sql = ", ".join(grain_columns)
+        rows = connection.execute(
+            f"""
+            SELECT {columns_sql}, COUNT(*) AS n
+            FROM {table}
+            GROUP BY {columns_sql}
+            HAVING COUNT(*) > 1
+            """
+        ).fetchall()
+        for row in rows:
+            *key_values, count = row
+            key_description = ", ".join(
+                f"{col}={value}" for col, value in zip(grain_columns, key_values, strict=True)
+            )
+            institution_id = key_values[0] if grain_columns[0] == "institution_id" else None
+            findings.append(
+                ReconciliationFinding(
+                    check_name="fact_grain_uniqueness",
+                    severity="error",
+                    institution_id=institution_id,
+                    year_value=None,
+                    message=(
+                        f"{table} has {count} rows for grain ({key_description}) -- "
+                        "expected exactly 1"
+                    ),
+                    context={"table": table, "count": count},
+                )
+            )
+    return findings
+
+
 ALL_CHECKS = (
     check_rate_bounds,
     check_year_over_year_jumps,
     check_retention_vs_completion_plausibility,
     check_enrolment_vs_performance_base_counts,
+    check_fact_grain_uniqueness,
 )
 
 

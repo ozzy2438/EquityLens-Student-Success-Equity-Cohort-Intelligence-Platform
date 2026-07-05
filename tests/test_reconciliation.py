@@ -5,6 +5,7 @@ import pytest
 
 from equitylens_normalization.reconciliation import (
     check_enrolment_vs_performance_base_counts,
+    check_fact_grain_uniqueness,
     check_rate_bounds,
     check_retention_vs_completion_plausibility,
     check_year_over_year_jumps,
@@ -131,3 +132,51 @@ def test_run_all_checks_aggregates_every_check(connection) -> None:
     _insert_retention(connection, [("acu", 2021, "retention_rate", "adj", 150.0)])
     findings = run_all_checks(connection)
     assert any(f.check_name == "rate_bounds" for f in findings)
+
+
+def test_check_fact_grain_uniqueness_flags_duplicate_key(connection) -> None:
+    # Two rows sharing the exact same declared grain -- the generic
+    # invariant that would have caught, structurally, the class of bug that
+    # recurred three times during this project (two source eras reporting
+    # the same fact under near-identical values but different keys always
+    # produced *distinct* keys, never a true duplicate; this check instead
+    # guards against a `deduplicate_overlapping_publications` regression
+    # that lets the exact same key survive twice).
+    _insert_retention(
+        connection,
+        [
+            ("acu", 2021, "retention_rate", "adj", 80.0),
+            ("acu", 2021, "retention_rate", "adj", 80.5),
+        ],
+    )
+    findings = check_fact_grain_uniqueness(connection)
+    assert len(findings) == 1
+    assert findings[0].severity == "error"
+    assert findings[0].institution_id == "acu"
+    assert "fact_retention_attrition" in findings[0].message
+
+
+def test_check_fact_grain_uniqueness_passes_for_distinct_metric_definitions(connection) -> None:
+    # Same institution/year/metric but genuinely different metric_definition
+    # values (e.g. "new_adjusted" vs "new_normal" attrition) must not be
+    # flagged -- metric_definition is a legitimate part of the grain.
+    _insert_retention(
+        connection,
+        [
+            ("acu", 2021, "retention_rate", "new_adjusted", 80.0),
+            ("acu", 2021, "retention_rate", "new_normal", 82.0),
+        ],
+    )
+    assert check_fact_grain_uniqueness(connection) == []
+
+
+def test_check_fact_grain_uniqueness_included_in_run_all_checks(connection) -> None:
+    _insert_retention(
+        connection,
+        [
+            ("acu", 2021, "retention_rate", "adj", 80.0),
+            ("acu", 2021, "retention_rate", "adj", 80.5),
+        ],
+    )
+    findings = run_all_checks(connection)
+    assert any(f.check_name == "fact_grain_uniqueness" for f in findings)

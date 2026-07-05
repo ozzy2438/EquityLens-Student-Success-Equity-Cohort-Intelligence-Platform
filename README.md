@@ -2,10 +2,58 @@
 
 EquityLens is a student-success and equity cohort intelligence platform. This
 repository currently implements the governed ingestion foundation (Day 1),
-the normalisation/warehouse layer (Phase 2), and the calibration target
-contract plus synthetic population generation (Phase 3, Steps 0-2c) only:
-outcome assignment, risk scoring, evaluation, and dashboards are
-intentionally out of scope.
+the normalisation/warehouse layer (Phase 2), and calibration target
+generation through synthetic outcome assignment (Phase 3, Steps 0-3d) only:
+risk scoring, evaluation, and dashboards are intentionally out of scope.
+
+## Phase 3 (Steps 3a-3d) status
+
+`outcomes.py` assigns each synthetic student a year-1 retention outcome,
+a Section 15-style success rate (EFTSL passed/attempted), and 4/6/9-year
+completion **conditioned on** their retention outcome (so the synthetic data
+cannot reproduce the retention-vs-completion contradiction Phase 2's
+reconciliation check guards against in the real warehouse). Outcomes are
+calibrated through two mechanisms, both fully documented in
+[`docs/assumptions.md`](docs/assumptions.md):
+
+- **Group-level logit anchors** (`outcomes.calibrate_anchors`) replace a
+  fixed additive-logit delta with one anchor per equity group -- including
+  the institution-wide `all_domestic` anchor -- solved cyclically (the same
+  idea as `raking.rake`, applied to a scalar per group) so every group's own
+  realized rate matches its own published target, fixing an earlier
+  systematic ~5pp miss on `first_nations` without touching Step 2's lift
+  factors.
+- **Shared latent risk propensity** (`outcomes.generate_latent_risk`,
+  `connection_strength`) links the Step 3c behavioural signal
+  (`success_rate_realized`) to the retention outcome through one shared
+  noise factor, rather than generating them independently. Measured (not
+  tuned): at `connection_strength=0.0` the behavioural signal carries no
+  information about retention (AUC~0.50); at the project's chosen
+  `connection_strength=0.7` it reaches AUC~0.67, still short of the
+  0.75-0.85 band a fitted, multi-feature Phase 4 model was always expected
+  to need several real signals (not one synthetic proxy scored by rank) to
+  reach -- disclosed honestly rather than pushed to `connection_strength=1.0`
+  to chase the number.
+
+Demographic-group membership alone still caps discrimination at an implied
+AUC of ~0.52 regardless of anchors or `connection_strength` (checked across
+a sigma range spanning two orders of magnitude) -- the anchors recentre each
+group's mean, they do not add within-group spread for a model to find.
+
+`equitylens_synthetic.validate.generate_validation_report`'s gate is fully
+green against the real target set: the one remaining tiny-N group
+(`remote`, N=35) is evaluated on its 10-seed mean realized rate rather than
+a single population's single draw (`validate.run_multi_seed_outcome_rates`,
+`docs/assumptions.md` "tiny-N gate methodology") -- a single Bernoulli
+realization over ~72 synthetic students carries sampling variance
+comparable to the group's own tolerance, so one draw cannot tell genuine
+miscalibration apart from ordinary noise, and the multi-seed check makes
+that distinction with evidence instead of an unsupported exemption.
+
+`equitylens_synthetic.validate.generate_validation_report` re-checks
+population marginals, outcome rates, and completion rates after outcomes are
+assigned, and reports both the demographic-only and behavioural-signal
+implied AUC alongside.
 
 ## Phase 3 (Steps 2a-2c) status
 

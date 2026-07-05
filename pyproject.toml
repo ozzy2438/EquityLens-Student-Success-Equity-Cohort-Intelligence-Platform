@@ -41,10 +41,11 @@ packages = [
   "src/equitylens_normalization",
   "src/equitylens_calibration",
   "src/equitylens_synthetic",
+  "src/equitylens_risk",
 ]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers --strict-config --cov=equitylens_ingestion --cov=equitylens_normalization --cov=equitylens_calibration --cov=equitylens_synthetic --cov-report=term-missing --cov-fail-under=85"
+addopts = "--strict-markers --strict-config --cov=equitylens_ingestion --cov=equitylens_normalization --cov=equitylens_calibration --cov=equitylens_synthetic --cov=equitylens_risk --cov-report=term-missing --cov-fail-under=85"
 testpaths = ["tests"]
 
 [tool.ruff]
