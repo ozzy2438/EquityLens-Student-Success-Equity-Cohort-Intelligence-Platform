@@ -24,14 +24,14 @@ holdout the way a model's parameters would be.
 from __future__ import annotations
 
 import pandas as pd
-from equitylens_synthetic.outcomes import assign_retention_outcomes, generate_latent_risk
-from equitylens_synthetic.population import build_raked_population
 
 from equitylens_risk.features import (
     CENSUS_FEATURE_COLUMNS,
     build_census_feature_table,
     generate_census_engagement_signal,
 )
+from equitylens_synthetic.outcomes import assign_retention_outcomes, generate_latent_risk
+from equitylens_synthetic.population import build_raked_population
 
 RETENTION_CONNECTION_STRENGTH = 0.7
 CENSUS_CONNECTION_STRENGTH = 0.4

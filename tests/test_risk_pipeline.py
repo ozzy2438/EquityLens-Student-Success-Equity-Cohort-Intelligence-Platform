@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from equitylens_risk.features import CENSUS_FEATURE_COLUMNS
 from equitylens_risk.pipeline import build_cohort, build_train_holdout, features_and_labels
 

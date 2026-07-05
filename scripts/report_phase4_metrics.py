@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+
 from equitylens_risk.models import (
     audit_group_fairness,
     boosting_feature_importance,

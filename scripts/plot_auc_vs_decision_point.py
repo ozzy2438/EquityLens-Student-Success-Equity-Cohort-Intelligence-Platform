@@ -15,6 +15,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib
+
 from equitylens_risk.features import generate_census_engagement_signal
 from equitylens_synthetic.outcomes import (
     assign_retention_outcomes,

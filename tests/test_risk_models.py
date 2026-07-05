@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
+
 from equitylens_risk.models import (
     audit_group_fairness,
     boosting_feature_importance,
