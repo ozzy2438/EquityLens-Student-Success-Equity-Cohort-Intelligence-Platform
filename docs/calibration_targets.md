@@ -6,8 +6,11 @@ This document defines, before any synthetic-cohort code is written, exactly
 which published marginals the ~20K-student synthetic commencing cohort must
 match, at what tolerance, and what counts as pass/fail. Written after the
 target is defined, a calibration always "succeeds" -- that is methodologically
-worthless. This contract is the thing `calibration/validate.py` (Step 4) is
-checked against; if a target changes, it changes here first, with a reason.
+worthless. This contract is the thing `equitylens_synthetic.validate` (Step
+3d/4) is checked against; if a target changes, it changes here first, with a
+reason. **`v2`** (`config`-generated as `targets_v2_2023ref.json`) adds
+target family 4 (completion rate) for Step 3c; families 1-3 and the part-time
+exclusion are unchanged from the original `v1` contract.
 
 ## Reference year: 2023
 
@@ -81,6 +84,14 @@ so in practice this target family is university-only). ACU 2023, verified:
 | remote | 66.78% | 86.12% |
 | first_address_remote | 68.91% | 83.62% |
 
+`all_domestic` is included as a target in its own right in `v3` (large N,
+`n>=200` tier) -- it is not merely contextual, since Phase 3 Step 3 uses it
+as the institution-level anchor every other row's logit delta is computed
+relative to (an earlier `v1`/`v2` bug excluded it by mistakenly copying the
+Section 11 enrolment-share pattern, where the analogous `all_students` row
+genuinely is only a denominator; see `docs/schema.md`-style note in
+`equitylens_calibration.targets.compute_rate_targets`'s docstring).
+
 **Tolerance is N-dependent, not a flat ±2pp**, because the underlying
 publisher counts behind these rates vary enormously by equity group --
 sector-wide 2023 average commencing counts range from 8,406 (`all_students`)
@@ -133,7 +144,29 @@ construction), not population-based, which is exactly why the population
 share per decile is uneven above -- this is expected and is the correct
 distribution to calibrate against, not a defect.
 
-### 4. Part-time enrolment ratio -- excluded from this contract
+### 4. Eventual completion rate (Section 17), added in v2, tolerance ±2.0 percentage points
+
+Grain: `tracking_window_years` (4/6/9), institution-level (S17 institution
+tables carry no equity split, matching `fact_completion_cohort`'s own
+grain). Added for Phase 3 Step 3c, which needs a completion-probability
+proxy for the newly commencing 2023 cohort -- a proxy is unavoidable here,
+since the true 4/6/9-year completion rate for a cohort commencing in 2023
+cannot be observed until 2027/2029/2032. The proxy is ACU's own most recent
+available historical rate per window:
+
+| Tracking window | Cohort ending | Completion rate |
+| --- | --- | --- |
+| 4 years | 2024 | 43.12% |
+| 6 years | 2024 | 67.42% |
+| 9 years | 2024 | 70.46% |
+
+This requires assuming institutional completion patterns are reasonably
+stable year over year -- a real, disclosed limitation (not a hard constraint
+proven from data), tracked as a stability assumption rather than a directly
+observed marginal, which is why this family is versioned separately (`v2`)
+from the original Step 0 contract rather than silently folded in.
+
+### 5. Part-time enrolment ratio -- excluded from this contract
 
 **Decision: dropped, not proxied.** No institution-level part-time/full-time
 attendance split exists anywhere in Sections 11, 15, 16, or 17 -- the only

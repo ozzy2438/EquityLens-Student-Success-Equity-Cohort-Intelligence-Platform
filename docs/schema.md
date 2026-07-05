@@ -121,6 +121,30 @@ Both label-drift bugs are now covered by regression tests
 (`tests/test_doe_s16.py::test_legacy_equity_group_labels_are_canonicalised`,
 `::test_comma_separated_footnote_markers_are_stripped_from_equity_labels`).
 
+A fifth instance of the same failure mode was found later, while building
+Phase 3 Step 3's outcome-assignment logic on top of `fact_completion_cohort`:
+the 2024 tidy-layout Section 17 rule used `metric_definition:
+domestic_bachelor`, while every 2018-2023 grid-layout rule used
+`domestic_bachelor__table_ab` -- a mismatch that let near-identical
+overlapping-cohort rows survive deduplication under two different keys (ACU's
+2023 nine-year completion rate appeared as both 72.10, from `doe_s17_2023`,
+and 72.11, from `doe_s17_2024`). Harmonised to `domestic_bachelor__table_ab`
+in both eras.
+
+**Pattern worth naming explicitly**: every one of these five drift bugs was
+invisible to the reconciliation checks themselves (none of them produce an
+out-of-range value or an implausible jump -- they produce a *duplicate*,
+near-identical row that a rate-bounds or year-over-year check has no reason
+to flag). All five were caught by directly inspecting one institution's time
+series for a specific fact and noticing it looked wrong -- an implausible
+value, a series that stopped, or an unexpected repeat -- while building
+something on top of the data, not by any automated test. This is the
+strongest argument in this repository for why Step 0's "check the target
+contract against real numbers before writing calibration code" discipline
+matters beyond Phase 2: cross-era metric-naming drift is a recurring,
+easy-to-reintroduce failure mode specific to DoE's publication history, and
+the warehouse's own quality gate cannot catch it by construction.
+
 ## Deduplication across overlapping publications
 
 DoE's wide-year tables are cumulative: every publication re-reports the

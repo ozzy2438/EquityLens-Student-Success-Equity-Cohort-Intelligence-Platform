@@ -778,7 +778,14 @@ rules:
       duration_col: 2
       timeframe_col: 3
       data_start_row: 3
-      metric_definition: domestic_bachelor
+      # Harmonised to match the grid-era rules' metric_definition exactly
+      # (was "domestic_bachelor" here vs "domestic_bachelor__table_ab" in
+      # the 2018-2023 grid rules) -- the mismatch let near-identical
+      # overlapping-cohort rows survive deduplication under two different
+      # keys (e.g. ACU's 2023 nine-year rate appeared as both 72.10 from
+      # doe_s17_2023 and 72.11 from doe_s17_2024), the same class of bug as
+      # the S16 metric/equity-group drift documented in docs/schema.md.
+      metric_definition: domestic_bachelor__table_ab
       is_annual_release: true
       skip_institution_labels:
         - "Table A and B Providers"

@@ -64,3 +64,23 @@ class SeifaDecileTarget:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+@dataclass(frozen=True, slots=True)
+class CompletionTarget:
+    """Section 17 completion-rate target, one per tracking window, used as
+    the eventual-completion proxy for a newly commencing cohort.
+
+    `cohort_end_year` is the most recent cohort for which this
+    `tracking_window_years` figure exists -- see docs/assumptions.md for the
+    year-on-year institutional stability this proxy relies on.
+    """
+
+    institution_id: str
+    tracking_window_years: int
+    cohort_end_year: int
+    value: float
+    tolerance_pp: float
+
+    def to_dict(self) -> dict:
+        return asdict(self)
