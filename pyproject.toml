@@ -17,6 +17,7 @@ dependencies = [
   "xlrd>=2.0,<3",
   "pandas>=2.2,<3",
   "duckdb>=1.1,<2",
+  "numpy>=1.26,<3",
 ]
 
 [project.optional-dependencies]
@@ -31,12 +32,19 @@ dev = [
 [project.scripts]
 equitylens-ingest = "equitylens_ingestion.cli:main"
 equitylens-normalize = "equitylens_normalization.cli:main"
+equitylens-calibrate = "equitylens_calibration.cli:main"
+equitylens-synthesize = "equitylens_synthetic.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/equitylens_ingestion", "src/equitylens_normalization"]
+packages = [
+  "src/equitylens_ingestion",
+  "src/equitylens_normalization",
+  "src/equitylens_calibration",
+  "src/equitylens_synthetic",
+]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers --strict-config --cov=equitylens_ingestion --cov=equitylens_normalization --cov-report=term-missing --cov-fail-under=85"
+addopts = "--strict-markers --strict-config --cov=equitylens_ingestion --cov=equitylens_normalization --cov=equitylens_calibration --cov=equitylens_synthetic --cov-report=term-missing --cov-fail-under=85"
 testpaths = ["tests"]
 
 [tool.ruff]

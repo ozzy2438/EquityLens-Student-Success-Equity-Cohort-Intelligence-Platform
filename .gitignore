@@ -15,7 +15,11 @@ data/raw/**
 data/manifests/**
 data/inventory/**
 data/warehouse/**
+data/calibration/**
+data/synthetic/**
 !data/raw/.gitkeep
 !data/manifests/.gitkeep
 !data/inventory/.gitkeep
 !data/warehouse/.gitkeep
+!data/calibration/.gitkeep
+!data/synthetic/.gitkeep
