@@ -85,28 +85,26 @@ rather than trades off against, its AUC/PR-AUC edge. The group-level audit
 below matters because a model can look well calibrated overall while still
 misstating risk for a particular subgroup.
 
-## Phase 4c snapshot: group-level calibration
+## Phase 4c fairness summary
 
-| Group | Students (n) | Observed attrition | Mean predicted risk | Calibration gap (pp) |
-| --- | --- | --- | --- | --- |
-| All students | 20,000 | 16.64% | 16.95% | +0.31 |
-| Low SES | 2,391 | 18.36% | 19.14% | +0.78 |
-| First Nations | 431 | 20.65% | 21.68% | +1.03 |
-| Disability | 1,373 | 16.10% | 17.23% | +1.14 |
-| NESB | 684 | 15.64% | 13.89% | -1.75 |
-| Regional | 2,239 | 16.93% | 16.85% | -0.08 |
-| Remote | 72 | 37.50% | 21.29% | -16.21 |
+The standalone fairness artefact is now
+[`docs/fairness_assessment.md`](fairness_assessment.md).
 
-The main pattern is not blanket unfairness across every group; it is one
-clear under-prediction pocket plus a few mild gaps. Low SES, First Nations,
-and disability are all slightly over-predicted (roughly +0.8 to +1.1pp),
-regional is essentially on target, NESB is modestly under-predicted, and
-**remote is the one group where this v1 model clearly misses the group's mean
-risk level**. That remote result needs to be carried with caution rather than
-"fixed by hand": the group is tiny (72 students, 27 attriters in this
-holdout), so the estimate is noisy, but the direction is still important for
-Phase 4d because a queue built from these scores will inherit that
-understatement.
+The short version is:
+
+- **First Nations is not being under-predicted in this holdout.** Observed
+  attrition is 20.65% versus mean predicted risk 21.68% (**+1.03pp**).
+- **The sharpest calibration miss is remote, not First Nations.** Remote
+  observed attrition is 37.50% versus predicted 21.29% (**-16.21pp**), but
+  this is based on only `72` students and `27` attriters.
+- **The harshest top-k miss pattern is NESB.** At the top-15% queue cut, the
+  model misses **92.5%** of actual NESB attriters (95% CI:
+  **85.9% to 96.2%**) because only **3.9%** of NESB students enter that
+  queue.
+- **First Nations and remote go the other way at top-15%.** Their FNRs are
+  **41.6%** and **48.1%**, both materially lower than the whole-cohort
+  **73.8%** -- favourable directionally, but still uncertain because those
+  groups are small.
 
 ## Phase 4c/4d bridge: operational top-k triage, not an arbitrary 0.5 cutoff
 
@@ -129,34 +127,13 @@ eventual intervention arithmetic should therefore be phrased as "what do we
 get per 2,000 / 3,000 / 4,000 outreach slots?" not "is the classifier
 perfect?"
 
-### Threshold-dependent FNR by group
-
-| Group | Attriters (n) | FNR @ top 10% | FNR @ top 15% | FNR @ top 20% | 95% CI for FNR @ top 15% |
-| --- | --- | --- | --- | --- | --- |
-| All students | 3,328 | 81.0% | 73.8% | 67.2% | 72.3% to 75.3% |
-| Low SES | 439 | 69.5% | 62.0% | 56.9% | 57.3% to 66.4% |
-| First Nations | 89 | 47.2% | 41.6% | 34.8% | 31.9% to 52.0% |
-| NESB | 107 | 95.3% | 92.5% | 87.9% | 85.9% to 96.2% |
-| Remote | 27 | 59.3% | 48.1% | 48.1% | 30.7% to 66.0% |
-
-This is the clearest 4c-to-4d link in the current work:
-
-1. FNR is **not** a fixed property of the model; it changes materially with
-   queue size.
-2. The change is **not uniform across groups**.
-3. Small groups need uncertainty attached. `first_nations` is a good
-   example: the top-15% point estimate says the model misses 41.6% of actual
-   attriters in that group, but the 95% interval is still wide (31.9% to
-   52.0%) because there are only 89 actual attriters in the holdout group.
-
-The fairness risk here is therefore operational, not abstract. A top-15%
-queue still misses nearly three-quarters of all attriters overall, but it
-misses **less** of the First Nations and remote groups than of the full
-population, while missing **more** of NESB attriters because very few NESB
-students reach the top of the ranking at all (only 3.9% of NESB students are
-in the top-15% queue). That is exactly the sort of threshold-sensitive trade
-the Phase 4d triage design has to surface explicitly rather than burying
-inside one overall AUC.
+The detailed group-by-group FNR tables, calibration gaps, confidence
+intervals, and the "what is a real finding versus what is still noisy?"
+interpretation now live in
+[`docs/fairness_assessment.md`](fairness_assessment.md). That separation is
+intentional: `model_results.md` stays focused on model performance and model
+choice, while the fairness document stands alone as the Phase 4c artefact a
+reviewer can read without excavating the rest of the modelling report.
 
 ## Feature importance
 

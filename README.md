@@ -8,7 +8,7 @@ risk model plus its initial fairness/threshold audit (Phase 4a-4c bridge):
 full triage workflow, initiative evaluation (Phase 4d-4e), and dashboards
 are the remaining scope.
 
-## Phase 4 (Steps 4a-4b) status
+## Phase 4 (Steps 4a-4c) status
 
 `docs/model_design.md` fixes the prediction point -- Semester 1 census
 date, predicting year-1 attrition -- **before** any model was fit, because
@@ -39,11 +39,16 @@ result, not a surprise, since every synthetic outcome here is generated as
 a strictly additive-in-logit function with no interaction terms, exactly
 logistic regression's own functional form. It was selected for Phase
 4c-4d on that basis plus its direct per-student explainability, not decided
-in advance. The same results file now carries the first 4c/4d bridge too:
-group-level calibration, top-10%/15%/20% queue quality, and
-threshold-dependent group FNR with confidence intervals for small groups,
-so fairness is tied to the outreach queue the institution would actually
-run rather than to an arbitrary 0.5 cutoff.
+in advance. The same results file carries the overall top-10%/15%/20% queue
+quality that Phase 4d will turn into intervention capacity tables.
+
+`docs/fairness_assessment.md`: the standalone Phase 4c artefact. The main
+finding is not "the model under-predicts every equity group"; it is more
+specific. In this holdout, `first_nations` is slightly **over**-predicted
+(+1.03pp), `remote` is the main calibration miss (-16.21pp, but on only 72
+students), and the clearest threshold-based concern is `nesb`, where the
+top-15% queue still misses 92.5% of actual attriters (95% CI 85.9% to
+96.2%) because only 3.9% of NESB students enter the queue.
 
 ## Phase 3 (Steps 3a-3d) status
 
