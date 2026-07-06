@@ -211,4 +211,7 @@ capacity scenarios, expected prevented attritions under simple effectiveness
 assumptions, and NESB-focused queue alternatives that make the
 fairness-versus-efficiency trade-off explicit. What remains after that is
 not to re-decide the model; it is to attach those queue designs to concrete
-initiative assumptions and, later, presentation surfaces.
+initiative assumptions. That initiative layer now lives in
+[`docs/initiative_evaluation.md`](initiative_evaluation.md), leaving the
+remaining scope in later presentation surfaces rather than in the model
+choice itself.
