@@ -123,6 +123,12 @@ The analyst's role here is not to declare one morally correct answer. It is
 to prevent a hidden policy choice from masquerading as a neutral technical
 default.
 
+The next layer of that same question now lives in
+[`docs/initiative_evaluation.md`](initiative_evaluation.md): once a queue
+policy is chosen, what does each intervention tier plausibly do to reached
+true attriters, and how much NESB-specific impact shifts when the queue rule
+changes but the intervention itself stays the same?
+
 ## Limits
 
 - This is still a synthetic holdout, not a real outreach trial.

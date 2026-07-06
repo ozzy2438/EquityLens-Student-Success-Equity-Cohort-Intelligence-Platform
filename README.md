@@ -4,11 +4,10 @@ EquityLens is a student-success and equity cohort intelligence platform. This
 repository currently implements the governed ingestion foundation (Day 1),
 the normalisation/warehouse layer (Phase 2), calibration target generation
 through synthetic outcome assignment (Phase 3), and a first leakage-safe
-risk model plus its initial fairness and triage-policy audit (Phase 4a-4d
-seed). Initiative evaluation depth (Phase 4e) and dashboards are the
-remaining scope.
+risk model plus its initial fairness, triage-policy, and initiative-
+evaluation audit (Phase 4a-4e seed). Dashboards remain the next scope.
 
-## Phase 4 (Steps 4a-4d) status
+## Phase 4 (Steps 4a-4e) status
 
 `docs/model_design.md` fixes the prediction point -- Semester 1 census
 date, predicting year-1 attrition -- **before** any model was fit, because
@@ -62,6 +61,16 @@ floor, and a stronger NESB FNR-parity floor. The key result is that a
 small group-aware NESB floor improves NESB capture materially in this
 holdout without reducing overall precision at all; a stronger floor buys
 more NESB coverage at a small efficiency cost.
+
+`docs/initiative_evaluation.md`: the Phase 4e initiative artefact. It
+converts the ranked queue into a three-tier program ladder with explicit
+planning-only effect rates (15% / 10% / 5%), showing that the top 0-10%
+band contributes about 73% of the blended program's expected prevented
+attritions under those assumptions. It also carries the key policy result:
+at a common 10% Tier-2 intervention effect, the mild NESB floor weakly
+dominates the plain global top-15% queue on this holdout -- same expected
+overall prevented attritions, materially higher NESB-specific expected
+impact.
 
 ## Phase 3 (Steps 3a-3d) status
 
