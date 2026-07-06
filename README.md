@@ -2,9 +2,66 @@
 
 EquityLens is a student-success and equity cohort intelligence platform. This
 repository currently implements the governed ingestion foundation (Day 1),
-the normalisation/warehouse layer (Phase 2), and calibration target
-generation through synthetic outcome assignment (Phase 3, Steps 0-3d) only:
-risk scoring, evaluation, and dashboards are intentionally out of scope.
+the normalisation/warehouse layer (Phase 2), calibration target generation
+through synthetic outcome assignment (Phase 3), and a first leakage-safe
+risk model plus its initial fairness and triage-policy audit (Phase 4a-4d
+seed). Initiative evaluation depth (Phase 4e) and dashboards are the
+remaining scope.
+
+## Phase 4 (Steps 4a-4d) status
+
+`docs/model_design.md` fixes the prediction point -- Semester 1 census
+date, predicting year-1 attrition -- **before** any model was fit, because
+the obvious behavioural feature (`success_rate_realized`, Phase 3c's
+full-year aggregate) shares its generator with the label itself and is not
+actually known at census date: using it would reproduce Phase 3's own
+AUC~0.67 finding under a different name, with the timing quietly wrong.
+`equitylens_risk.features.generate_census_engagement_signal` builds a
+feature that genuinely is available at census date instead, sharing
+`shared_latent_risk` but through a deliberately weaker connection than the
+full-year signal's -- measured at AUC=0.631 alone, and shown to move
+smoothly from ~0.59 to ~0.67 as that connection strengthens
+(`docs/images/auc_vs_decision_point.png`), the direct evidence that
+discrimination trades against how early the decision is made.
+
+`equitylens_risk.pipeline` builds train/holdout as two separate simulated
+cohorts (different seeds) rather than a row split -- and its own tests
+caught and disclosed a subtlety worth knowing before trusting the split:
+the raked demographic columns (`geography`, `low_ses`, `first_nations`,
+`seifa_decile`) come out identical between any two cohorts calibrated to
+the same targets (expected -- that is what calibration means), while every
+independently-assigned attribute and outcome signal varies as intended.
+
+`docs/model_results.md`: logistic regression and gradient boosting were
+compared on AUC, PR-AUC, Brier score, and calibration on the holdout
+cohort. Logistic regression wins or ties on every metric -- an expected
+result, not a surprise, since every synthetic outcome here is generated as
+a strictly additive-in-logit function with no interaction terms, exactly
+logistic regression's own functional form. It was selected for Phase
+4c-4d on that basis plus its direct per-student explainability, not decided
+in advance. The same results file carries the overall top-10%/15%/20% queue
+quality that Phase 4d will turn into intervention capacity tables.
+
+`docs/fairness_assessment.md`: the standalone Phase 4c artefact. The main
+finding is not "the model under-predicts every equity group"; it is more
+specific. In this holdout, `first_nations` is slightly **over**-predicted
+(+1.03pp), `remote` is the main calibration miss (-16.21pp, but on only 72
+students), and the clearest threshold-based concern is `nesb`, where the
+top-15% queue still misses 92.5% of actual attriters (95% CI 85.9% to
+96.2%) because only 3.9% of NESB students enter the queue. A 10-holdout
+robustness check keeps the remote calibration gap negative in every run
+(mean -10.56pp, range -4.59pp to -17.70pp), which makes the direction look
+stable even though the tiny group keeps the exact magnitude noisy.
+
+`docs/triage_policy_analysis.md`: the initial Phase 4d policy artefact. It
+turns the chosen model into Tier 1/2/3 outreach queues (2,000 / 3,000 /
+4,000 slots), estimates reached true attriters plus simple prevented-
+attrition sensitivities, and compares three Tier-2 queue designs in
+response to the NESB fairness finding: a plain global queue, a mild NESB
+floor, and a stronger NESB FNR-parity floor. The key result is that a
+small group-aware NESB floor improves NESB capture materially in this
+holdout without reducing overall precision at all; a stronger floor buys
+more NESB coverage at a small efficiency cost.
 
 ## Phase 3 (Steps 3a-3d) status
 
