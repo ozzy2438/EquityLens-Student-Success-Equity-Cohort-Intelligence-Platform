@@ -202,12 +202,13 @@ trade-off to argue explicitly (accuracy vs. explainability); it is reported
 as a clean, one-directional result here because the evidence turned out
 that way, not because logistic regression was decided on in advance.
 
-## What this feeds into next (Phase 4d, not yet implemented)
+## What this feeds into next
 
-This file now carries the first 4c bridge into 4d: model choice, overall
-calibration, group calibration, and queue-size-dependent miss rates are all
-measured on the same holdout cohort. The remaining Phase 4d work is not to
-re-decide the model; it is to attach these ranked queues to capacity and
-initiative assumptions (e.g. "if outreach can contact the top 3,000
-students, how many true attriters does that reach, and how does that split
-by group?").
+The model-selection question is now closed enough to support queue-design
+work. The next-stage triage counterfactuals live in
+[`docs/triage_policy_analysis.md`](triage_policy_analysis.md): Tier 1/2/3
+capacity scenarios, expected prevented attritions under simple effectiveness
+assumptions, and NESB-focused queue alternatives that make the
+fairness-versus-efficiency trade-off explicit. What remains after that is
+not to re-decide the model; it is to attach those queue designs to concrete
+initiative assumptions and, later, presentation surfaces.

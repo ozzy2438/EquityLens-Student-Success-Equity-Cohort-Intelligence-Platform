@@ -60,9 +60,39 @@ Interpretation:
   a reasonable v1 calibration story for this synthetic holdout.
 - `first_nations`, `low_ses`, and `disability` are all **slightly
   over-predicted**, not under-predicted.
+- That is operationally less harmful than systematic under-prediction -- it
+  creates some extra outreach rather than silently missing risk -- but it is
+  not costless. Persistent over-flagging of one group can still create
+  intervention fatigue and a labeling effect, so "not under-predicted" is
+  not the same thing as "done."
 - `nesb` is **modestly under-predicted** on mean risk.
 - `remote` is the one group with a clearly material calibration gap, but the
   sample is too small to treat the point estimate as a stable magnitude.
+
+### Remote tiny-N stability check
+
+The remote result should be held to the same standard as the project's
+earlier tiny-N gate methodology rather than trusted off one holdout draw.
+Using the current fitted logistic model and **10 independent holdout
+cohorts** (same target set, fresh outcome/noise draws), the remote
+calibration gap stays negative in every run:
+
+| Check | Value |
+| --- | --- |
+| Holdouts evaluated | 10 |
+| Remote students per holdout | 72 |
+| Mean calibration gap | -10.56pp |
+| Median calibration gap | -10.31pp |
+| Range | -17.70pp to -4.59pp |
+
+This strengthens the directional claim: the current synthetic world
+systematically under-predicts remote risk, not just in one lucky/unlucky
+draw. But it does **not** prove the mechanism is "model bias" in isolation.
+Because every one of those holdouts still comes from the same synthetic
+generator, the stable negative gap may be a property of the data-generating
+process for a tiny subgroup as much as of the fitted model. That is exactly
+why this belongs in Phase 4's fairness documentation rather than being
+"fixed" inside the scorecard without explanation.
 
 ## Threshold-dependent FNR at operational queue cuts
 
@@ -137,4 +167,5 @@ higher rate than the rest of the population. If it instead tries to protect
 against disproportionate group miss rates, overall queue efficiency may
 drop. That is not a bug to "solve away" inside the model report; it is a
 policy trade-off to document so the intervention design can choose
-explicitly.
+explicitly. The actual counterfactual queue designs now live in
+[`docs/triage_policy_analysis.md`](triage_policy_analysis.md).

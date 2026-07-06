@@ -4,11 +4,11 @@ EquityLens is a student-success and equity cohort intelligence platform. This
 repository currently implements the governed ingestion foundation (Day 1),
 the normalisation/warehouse layer (Phase 2), calibration target generation
 through synthetic outcome assignment (Phase 3), and a first leakage-safe
-risk model plus its initial fairness/threshold audit (Phase 4a-4c bridge):
-full triage workflow, initiative evaluation (Phase 4d-4e), and dashboards
-are the remaining scope.
+risk model plus its initial fairness and triage-policy audit (Phase 4a-4d
+seed). Initiative evaluation depth (Phase 4e) and dashboards are the
+remaining scope.
 
-## Phase 4 (Steps 4a-4c) status
+## Phase 4 (Steps 4a-4d) status
 
 `docs/model_design.md` fixes the prediction point -- Semester 1 census
 date, predicting year-1 attrition -- **before** any model was fit, because
@@ -48,7 +48,20 @@ specific. In this holdout, `first_nations` is slightly **over**-predicted
 (+1.03pp), `remote` is the main calibration miss (-16.21pp, but on only 72
 students), and the clearest threshold-based concern is `nesb`, where the
 top-15% queue still misses 92.5% of actual attriters (95% CI 85.9% to
-96.2%) because only 3.9% of NESB students enter the queue.
+96.2%) because only 3.9% of NESB students enter the queue. A 10-holdout
+robustness check keeps the remote calibration gap negative in every run
+(mean -10.56pp, range -4.59pp to -17.70pp), which makes the direction look
+stable even though the tiny group keeps the exact magnitude noisy.
+
+`docs/triage_policy_analysis.md`: the initial Phase 4d policy artefact. It
+turns the chosen model into Tier 1/2/3 outreach queues (2,000 / 3,000 /
+4,000 slots), estimates reached true attriters plus simple prevented-
+attrition sensitivities, and compares three Tier-2 queue designs in
+response to the NESB fairness finding: a plain global queue, a mild NESB
+floor, and a stronger NESB FNR-parity floor. The key result is that a
+small group-aware NESB floor improves NESB capture materially in this
+holdout without reducing overall precision at all; a stronger floor buys
+more NESB coverage at a small efficiency cost.
 
 ## Phase 3 (Steps 3a-3d) status
 
